@@ -21,11 +21,6 @@ function App() {
             >
                 <TextValidationPage/>
             </Box>
-            {/*<div>
-                <Routes>
-                    <Route path="/" element={<TextValidationPage/>}/>
-                </Routes>
-            </div>*/}
         </div>
     );
 }

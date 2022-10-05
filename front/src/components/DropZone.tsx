@@ -7,6 +7,7 @@ export interface DropZoneProps {
     onDragOut?: () => void
     onDrop?: () => void
     onFilesDrop?: (files: File[]) => void
+    onClick?: () => void
 }
 
 // The drop zone
@@ -23,54 +24,48 @@ export const DropZone = React.memo(
 
         const [isDragActive, setIsDragActive] = React.useState(false)
         const dropZoneRef = React.useRef<null | HTMLDivElement>(null)
+        const fileRef = React.useRef();
 
-        const handleDragEnter = React.useCallback(
-            (event: any) => {
-                event.preventDefault()
-                event.stopPropagation()
-                onDragIn?.()
+        const handleDragEnter = (event: any) => {
+            event.preventDefault()
+            event.stopPropagation()
+            onDragIn?.()
 
-                if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
-                    setIsDragActive(true)
-                }
-            },
-            [onDragIn]
-        )
+            if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
+                setIsDragActive(true)
+            }
+        }
 
-        const handleDragOut = React.useCallback(
-            (event: DragEvent) => {
-                event.preventDefault()
-                event.stopPropagation()
-                onDragOut?.()
+        const handleDragOut = (event: DragEvent) => {
+            event.preventDefault()
+            event.stopPropagation()
+            onDragOut?.()
 
-                setIsDragActive(false)
-            },
-            [onDragOut]
-        )
+            setIsDragActive(false)
+        }
 
-        const handleDrag = React.useCallback(
-            (event: any) => {
-                event.preventDefault()
-                event.stopPropagation()
-            },
-            [isDragActive, onDrag]
-        )
+        const handleDrag = (event: any) => {
+            event.preventDefault()
+            event.stopPropagation()
+        }
 
-        const handleDrop = React.useCallback(
-            (event: any) => {
-                event.preventDefault()
-                event.stopPropagation()
+        const handleDrop = (event: any) => {
+            event.preventDefault()
+            event.stopPropagation()
 
-                setIsDragActive(false)
-                onDrop?.()
+            setIsDragActive(false)
+            onDrop?.()
 
-                const files = event.dataTransfer ? [...event.dataTransfer.files] : [];
-                onFilesDrop && onFilesDrop(files)
+            const files = event.dataTransfer ? [...event.dataTransfer.files] : [];
+            onFilesDrop && onFilesDrop(files)
 
-                event.dataTransfer.clearData()
-            },
-            [onDrop, onFilesDrop]
-        )
+            event.dataTransfer.clearData()
+        }
+
+        // нужно добавить открывающееся окно с выбором файлов
+        const handleClick = (e: any) => {
+            console.log('click')
+        };
 
         React.useEffect(() => {
             onDragStateChange?.(isDragActive)
@@ -83,6 +78,7 @@ export const DropZone = React.memo(
                 tempZoneRef.addEventListener('dragleave', handleDragOut)
                 tempZoneRef.addEventListener('dragover', handleDrag)
                 tempZoneRef.addEventListener('drop', handleDrop)
+                tempZoneRef.addEventListener('click', handleClick)
             }
 
             return () => {
@@ -90,6 +86,7 @@ export const DropZone = React.memo(
                 tempZoneRef?.removeEventListener('dragleave', handleDragOut)
                 tempZoneRef?.removeEventListener('dragover', handleDrag)
                 tempZoneRef?.removeEventListener('drop', handleDrop)
+                tempZoneRef?.removeEventListener('click', handleClick)
             }
         }, [])
 
