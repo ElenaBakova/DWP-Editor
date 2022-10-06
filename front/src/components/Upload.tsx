@@ -13,65 +13,17 @@ export default function Upload() {
         setSelectedFiles(event?.target?.files?.[0]);
     };
 
-    /*const onUpload = () => {
-        console.log(selectedFiles);
-    };
-
-    const onClear = () => {
-        setSelectedFiles(undefined);
-    };*/
-
-   /* const onUpdate = (event: any) => {
-        if (event.target.textContent.trim().toLowerCase() === 'change') {
-            onClear();
-            fileRef.current?.click();
-            return;
-        }
-        if (event.target.textContent.trim().toLowerCase() === 'clear') {
-            onClear();
-            return;
-        }
-    };*/
-
     return (
         <>
-            <input
-                ref={fileRef}
-                hidden
-                type="file"
-                accept={acceptedFormats}
-                onChange={handleFileSelect}
-            />
-            {/*{selectedFiles && !selectedFiles['name'] && (*/}
-                <Button
-                    variant="contained"
-                    component="label"
-                    style={{textTransform: 'none', fontSize: 'medium'}}
-                    onClick={() => fileRef.current?.click()}
-                >
-                    или нажмите для загрузки
-                </Button>
-            {/*)}*/}
-            {/*{selectedFiles && selectedFiles['name'] && (
-                <Button
-                    variant="contained"
-                    component="label"
-                    style={{textTransform: 'none'}}
-                    onClick={onUpdate}
-                >
-                    <span style={{ float: 'left' }}> {selectedFiles['name']}</span>
-                    <span style={{padding: '10px'}}> Change</span>
-                    <span>Clear</span>
-                </Button>
-            )}*/}
-            {/*<Button
-                color="primary"
-                disabled={!selectedFiles}
-                style={{textTransform: 'none'}}
-                onClick={onUpload}
+            <Button
+                variant="contained"
+                component="label"
+                style={{textTransform: 'none', fontSize: 'medium'}}
+                onClick={() => fileRef.current?.click()}
             >
-                Upload
-            </Button>*/}
+                или нажмите для загрузки
+                <input ref={fileRef} hidden type="file" accept={acceptedFormats} onChange={handleFileSelect}/>
+            </Button>
         </>
     );
 }

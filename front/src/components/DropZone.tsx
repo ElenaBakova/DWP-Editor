@@ -7,7 +7,6 @@ export interface DropZoneProps {
     onDragOut?: () => void
     onDrop?: () => void
     onFilesDrop?: (files: File[]) => void
-    onClick?: () => void
 }
 
 // The drop zone
@@ -16,7 +15,6 @@ export const DropZone = React.memo(
         const {
             onDragStateChange,
             onFilesDrop,
-            onDrag,
             onDragIn,
             onDragOut,
             onDrop,
@@ -61,11 +59,6 @@ export const DropZone = React.memo(
             event.dataTransfer.clearData()
         }
 
-        // нужно добавить открывающееся окно с выбором файлов
-        /*const handleClick = (e: any) => {
-            console.log('click')
-        };*/
-
         React.useEffect(() => {
             onDragStateChange?.(isDragActive)
         }, [isDragActive])
@@ -77,7 +70,6 @@ export const DropZone = React.memo(
                 tempZoneRef.addEventListener('dragleave', handleDragOut)
                 tempZoneRef.addEventListener('dragover', handleDrag)
                 tempZoneRef.addEventListener('drop', handleDrop)
-              //  tempZoneRef.addEventListener('click', handleClick)
             }
 
             return () => {
@@ -85,7 +77,6 @@ export const DropZone = React.memo(
                 tempZoneRef?.removeEventListener('dragleave', handleDragOut)
                 tempZoneRef?.removeEventListener('dragover', handleDrag)
                 tempZoneRef?.removeEventListener('drop', handleDrop)
-              //  tempZoneRef?.removeEventListener('click', handleClick)
             }
         }, [])
 
