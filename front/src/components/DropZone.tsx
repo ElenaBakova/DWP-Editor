@@ -53,7 +53,9 @@ export const DropZone = React.memo(
             setIsDragActive(false)
             onDrop?.()
 
-            const files = event.dataTransfer ? [...event.dataTransfer.files] : [];
+            let files = event.dataTransfer ? [...event.dataTransfer.files] : [];
+            files = files.find(file => file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            files = (files == undefined) ? [] : [files]
             onFilesDrop && onFilesDrop(files)
 
             event.dataTransfer.clearData()

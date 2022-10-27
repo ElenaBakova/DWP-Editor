@@ -1,6 +1,5 @@
 import React from 'react'
 import {DropZone} from "./DropZone";
-import {FileList} from "./FileList";
 import Button from "@mui/material/Button";
 import {Grid} from "@mui/material";
 
@@ -29,7 +28,7 @@ export const TextValidationPage = React.memo(() => {
     return (
         <Grid container direction="column" sx={{
             m: 10,
-            p: 2,
+            p: 3,
             justifyContent: 'center',
             alignItems: 'center',
             width: 'fit-content',
@@ -42,12 +41,15 @@ export const TextValidationPage = React.memo(() => {
             <DropZone onDragStateChange={onDragStateChange} onFilesDrop={onFilesDrop}>
                 <h2>Перетащите файл сюда</h2>
 
-                <FileList files={files}/>
+                <div>
+                    <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
+                    <span>{files.length > 0 ? (Math.round(files[0]?.size / 1000)) : ""}</span>
+                </div>
             </DropZone>
             <Button
                 variant="contained"
                 component="label"
-                style={{textTransform: 'none', fontSize: 'medium'}}
+                style={{textTransform: 'none', fontSize: 'medium', marginBottom: '15px'}}
             >
                 или нажмите для загрузки
                 <input ref={fileRef} hidden type="file" accept={acceptedFormats} onChange={handleFileSelect}/>
