@@ -13,9 +13,17 @@ export const TextValidationPage = React.memo(() => {
     // File formats that can be uploaded
     const acceptedFormats = AcceptedFileType.Doc;
 
+    const formData = new FormData();
+
     const handleFileSelect = (event: any) => {
-        setFiles([event?.target?.files?.[0]] as File[]);
-    };
+        const file = event?.target?.files?.[0];
+        file ? setFiles([file]) : setFiles(files);
+
+        if (file) {
+            formData.append(file.name.toString(), file);
+        }
+        // console.log(formData.get(file.name.toString()));
+    }
 
     const onDragStateChange = (dragActive: boolean) => {
         setIsDropActive(dragActive)
@@ -23,6 +31,12 @@ export const TextValidationPage = React.memo(() => {
 
     const onFilesDrop = (file: File[]) => {
         setFiles(file)
+
+        if (file && file.length > 0) {
+            formData.append(file[0].name.toString(), file[0]);
+        }
+        //console.log("-------");
+        //console.log(formData.get(file[0].name.toString()));
     }
 
     return (
@@ -30,11 +44,11 @@ export const TextValidationPage = React.memo(() => {
             m: 10,
             p: 3,
             justifyContent: 'center',
-            alignItems: 'center',
+            alignContent: 'center',
             width: 'fit-content',
-            '&:hover': {
+            /*'&:hover': {
                 opacity: [0.9, 0.8, 0.7],
-            },
+            },*/
             border: '2px dashed grey'
         }}
         >
@@ -54,6 +68,15 @@ export const TextValidationPage = React.memo(() => {
                 или нажмите для загрузки
                 <input ref={fileRef} hidden type="file" accept={acceptedFormats} onChange={handleFileSelect}/>
             </Button>
+
+            {files.length > 0 &&
+                <Button
+                    variant="contained"
+                    component="label"
+                    style={{textTransform: 'none', fontSize: 'medium', marginBottom: '15px'}}>
+                    Загрузить
+                </Button>
+            }
         </Grid>
     )
 })
