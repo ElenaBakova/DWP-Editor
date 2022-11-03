@@ -13,16 +13,31 @@ export const TextValidationPage = React.memo(() => {
     // File formats that can be uploaded
     const acceptedFormats = AcceptedFileType.Doc;
 
-    const formData = new FormData();
-
     const handleFileSelect = (event: any) => {
         const file = event?.target?.files?.[0];
         file ? setFiles([file]) : setFiles(files);
+    }
 
-        if (file) {
-            formData.append(file.name.toString(), file);
+    const handleClick = async () => {
+        if (!files || files.length < 1) {
+            return
         }
-        // console.log(formData.get(file.name.toString()));
+        const formData = new FormData();
+        formData.append(files[0].name.toString(), files[0]);
+
+        await fetch("http://localhost:5098", {
+            method: "POST",
+            body: formData,
+        })
+            .then(
+                () => {
+                    console.log("Files uploaded");
+                },
+                (error) => {
+                    console.log("upload file error");
+                    console.log(error);
+                }
+            );
     }
 
     const onDragStateChange = (dragActive: boolean) => {
@@ -31,12 +46,6 @@ export const TextValidationPage = React.memo(() => {
 
     const onFilesDrop = (file: File[]) => {
         setFiles(file)
-
-        if (file && file.length > 0) {
-            formData.append(file[0].name.toString(), file[0]);
-        }
-        //console.log("-------");
-        //console.log(formData.get(file[0].name.toString()));
     }
 
     return (
@@ -46,9 +55,6 @@ export const TextValidationPage = React.memo(() => {
             justifyContent: 'center',
             alignContent: 'center',
             width: 'fit-content',
-            /*'&:hover': {
-                opacity: [0.9, 0.8, 0.7],
-            },*/
             border: '2px dashed grey'
         }}
         >
@@ -73,7 +79,8 @@ export const TextValidationPage = React.memo(() => {
                 <Button
                     variant="contained"
                     component="label"
-                    style={{textTransform: 'none', fontSize: 'medium', marginBottom: '15px'}}>
+                    style={{textTransform: 'none', fontSize: 'medium', marginBottom: '15px'}}
+                    onClick={handleClick}>
                     Загрузить
                 </Button>
             }
