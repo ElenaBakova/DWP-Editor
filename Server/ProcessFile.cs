@@ -1,4 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Threading;
+
+namespace Server;
 
 /// <summary>
 /// Class for parsing file
@@ -10,13 +13,14 @@ public class ProcessFile
     /// <summary>
     /// Runs python main.py script
     /// </summary>
-    public static void RunScriptAsync()
+    public static async void RunScriptAsync()
     {
         ProcessStartInfo startInfo = new("python");
 
         string directory = scriptPath;
         string script = "main.py";
 
+        startInfo.FileName = "blahblahblah demo";
         startInfo.WorkingDirectory = directory;
         startInfo.Arguments = script;
         startInfo.UseShellExecute = false;
@@ -24,6 +28,8 @@ public class ProcessFile
         startInfo.RedirectStandardError = true;
         startInfo.RedirectStandardOutput = true;
 
-        using Process process = Process.Start(startInfo);
+        using Process process = new() { StartInfo = startInfo };
+        process.Start();
+        await process.WaitForExitAsync();
     }
 }

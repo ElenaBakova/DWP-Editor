@@ -1,4 +1,6 @@
-﻿WebApplicationBuilder builder = WebApplication.CreateBuilder();
+﻿using Server;
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder();
 
 string origins = "myOrigins";
 builder.Services.AddCors(options =>
