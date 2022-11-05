@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Threading;
 
 namespace Server;
 
@@ -29,7 +28,7 @@ public class ProcessFile
         startInfo.RedirectStandardOutput = true;
 
         using Process process = new() { StartInfo = startInfo };
-        process.Start();
+        _ = process.Start();
         await process.WaitForExitAsync();
     }
 }
