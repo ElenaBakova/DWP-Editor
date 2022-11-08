@@ -1,12 +1,13 @@
 import React from 'react'
 import {DropZone} from "./DropZone";
 import Button from "@mui/material/Button";
-import {Grid} from "@mui/material";
+import {Grid, Typography} from "@mui/material";
 
 const AcceptedFileType = {Doc: '.docx'};
 
 export const TextValidationPage = React.memo(() => {
     const [isDropActive, setIsDropActive] = React.useState(false)
+    const [isFileDropped, setIsFileDropped] = React.useState(false)
     const [files, setFiles] = React.useState<File[]>([])
     const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -46,6 +47,7 @@ export const TextValidationPage = React.memo(() => {
 
     const onFilesDrop = (file: File[]) => {
         setFiles(file)
+        setIsFileDropped(true)
     }
 
     return (
@@ -63,7 +65,6 @@ export const TextValidationPage = React.memo(() => {
 
                 <div>
                     <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
-                    <span>{files.length > 0 ? (Math.round(files[0]?.size / 1000)) : ""}</span>
                 </div>
             </DropZone>
             <Button
@@ -83,6 +84,9 @@ export const TextValidationPage = React.memo(() => {
                     onClick={handleClick}>
                     Загрузить
                 </Button>
+            }
+            {files.length == 0 && isFileDropped &&
+                <Typography align={"center"} color="red">Неверный тип файла</Typography>
             }
         </Grid>
     )
