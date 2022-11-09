@@ -138,11 +138,11 @@ def feed(file):
     if os.path.exists(result_dir_path):
         shutil.rmtree(result_dir_path)
     os.makedirs(result_dir_path)
-    file_path = result_dir_path + os.path.split(file)[1][0:-5]
+    # file_path = result_dir_path + os.path.split(file)[1][0:-5]
 
-    with open(file_path + "_structure.json", "w", encoding='utf-8') as write_file:
+    with open(result_dir_path + "structure.json", "w", encoding='utf-8') as write_file:
         json.dump(data, write_file, indent=4, ensure_ascii=False)
-    with open(file_path + "_content.json", "w", encoding='utf-8') as write_file:
+    with open(result_dir_path + "content.json", "w", encoding='utf-8') as write_file:
         json.dump(data1, write_file, indent=4, ensure_ascii=False)
 
 
