@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import shutil
 import sys
 
 from docx import Document
@@ -134,8 +135,9 @@ def feed(file):
 
     result_dir_path = dir_path + "\\results_structure\\"
 
-    if not os.path.exists(result_dir_path):
-        os.makedirs(result_dir_path)
+    if os.path.exists(result_dir_path):
+        shutil.rmtree(result_dir_path)
+    os.makedirs(result_dir_path)
     file_path = result_dir_path + os.path.split(file)[1][0:-5]
 
     with open(file_path + "_structure.json", "w", encoding='utf-8') as write_file:

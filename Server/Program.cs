@@ -26,10 +26,11 @@ app.MapPost("/", async (HttpRequest request) =>
     }
 
     string dirPath = Environment.CurrentDirectory + "\\..\\Files\\";
-    if (!Directory.Exists(dirPath))
+    if (Directory.Exists(dirPath))
     {
-        Directory.CreateDirectory(dirPath);
+        Directory.Delete(dirPath, true);
     }
+    Directory.CreateDirectory(dirPath);
 
     string filePath = dirPath + file.Name;
     using (FileStream stream = File.Create(filePath))

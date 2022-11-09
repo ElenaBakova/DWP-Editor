@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿namespace Server;
 
-namespace Server;
+using System.Diagnostics;
 
 /// <summary>
 /// Class for parsing file
@@ -19,7 +19,6 @@ public class ProcessFile
         string directory = scriptPath;
         string script = "main.py";
 
-        startInfo.FileName = "blahblahblah demo";
         startInfo.WorkingDirectory = directory;
         startInfo.Arguments = script;
         startInfo.UseShellExecute = false;
