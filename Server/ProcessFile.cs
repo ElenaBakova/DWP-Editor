@@ -1,6 +1,8 @@
 ﻿namespace Server;
 
 using System.Diagnostics;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Class for parsing file
@@ -12,7 +14,7 @@ public class ProcessFile
     /// <summary>
     /// Runs python main.py script
     /// </summary>
-    public static async void RunScriptAsync()
+    public static async Task RunScriptAsync()
     {
         ProcessStartInfo startInfo = new("python");
 
@@ -29,5 +31,15 @@ public class ProcessFile
         using Process process = new() { StartInfo = startInfo };
         _ = process.Start();
         await process.WaitForExitAsync();
+    }
+
+    /// <summary>
+    /// Deserializes structure.json
+    /// </summary>
+    public static async void DeserializeStructureAsync()
+    {
+        string fileName = "..\\results_structure\\structure.json";
+        using FileStream openStream = File.OpenRead(fileName);
+        Structure? documentStructure = await JsonSerializer.DeserializeAsync<Structure>(openStream);
     }
 }

@@ -38,7 +38,8 @@ app.MapPost("/", async (HttpRequest request) =>
         await file.CopyToAsync(stream);
     }
 
-    ProcessFile.RunScriptAsync();
+    await ProcessFile.RunScriptAsync();
+    ProcessFile.DeserializeStructureAsync();
 
     return Results.Ok();
 })
