@@ -61,8 +61,10 @@ export const TextValidationPage = React.memo(() => {
         }}
         >
             <DropZone onDragStateChange={onDragStateChange} onFilesDrop={onFilesDrop}>
-                <h2>Перетащите файл сюда</h2>
-
+                <Typography align={"center"} variant={"h5"}
+                            style={{fontWeight: 600, margin: '15px', marginBottom: '0px'}}>
+                    Перетащите файл сюда
+                </Typography>
                 <div>
                     <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
                 </div>
@@ -70,7 +72,7 @@ export const TextValidationPage = React.memo(() => {
             <Button
                 variant="contained"
                 component="label"
-                style={{textTransform: 'none', fontSize: 'medium', marginBottom: '15px'}}
+                style={{textTransform: 'none', fontSize: 'medium', margin: '15px'}}
             >
                 или нажмите для загрузки
                 <input ref={fileRef} hidden type="file" accept={acceptedFormats} onChange={handleFileSelect}/>
@@ -80,7 +82,7 @@ export const TextValidationPage = React.memo(() => {
                 <Button
                     variant="contained"
                     component="label"
-                    style={{textTransform: 'none', fontSize: 'medium', marginBottom: '15px'}}
+                    style={{textTransform: 'none', fontSize: 'medium', margin: '15px', marginTop: '0px'}}
                     onClick={handleClick}>
                     Загрузить
                 </Button>
