@@ -33,13 +33,10 @@ public class ProcessFile
         await process.WaitForExitAsync();
     }
 
-    /// <summary>
-    /// Deserializes structure.json
-    /// </summary>
-    public static async void DeserializeStructureAsync()
+    private static ValueTask<T?> DeserializeFileAsync<T>(string fileName)
     {
-        string fileName = "..\\results_structure\\structure.json";
+        //string fileName = "..\\results_structure\\structure.json";
         using FileStream openStream = File.OpenRead(fileName);
-        Structure? documentStructure = await JsonSerializer.DeserializeAsync<Structure>(openStream);
+        return JsonSerializer.DeserializeAsync<T>(openStream);
     }
 }

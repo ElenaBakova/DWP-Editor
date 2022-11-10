@@ -19,7 +19,7 @@ app.UseStaticFiles();
 
 app.MapPost("/", async (HttpRequest request) =>
 {
-    IFormFile? file = request.Form.Files.FirstOrDefault();
+    IFormFile? file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
     if (file == null || file.Length <= 0)
     {
         return Results.BadRequest("File is empty");
@@ -39,7 +39,6 @@ app.MapPost("/", async (HttpRequest request) =>
     }
 
     await ProcessFile.RunScriptAsync();
-    ProcessFile.DeserializeStructureAsync();
 
     return Results.Ok();
 })
