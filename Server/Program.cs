@@ -1,5 +1,7 @@
 ﻿using Server;
 
+await ProcessFile.ValidateDocumentAsync();
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder();
 
 string origins = "myOrigins";

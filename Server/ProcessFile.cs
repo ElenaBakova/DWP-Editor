@@ -33,10 +33,29 @@ public class ProcessFile
         await process.WaitForExitAsync();
     }
 
-    private static ValueTask<T?> DeserializeFileAsync<T>(string fileName)
+    public static async Task<List<string>> ValidateDocumentAsync()
+    {
+        List<string> errorsList = new();
+        var structure = await DeserializeFileAsync<Structure>("..\\results_structure\\structure.json");
+        if (structure == null)
+        {
+            errorsList.Add("Пустой файл");
+            return errorsList;
+        }
+
+        var properties = structure.GetType().GetProperties();
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(structure, null);
+        }
+
+        return errorsList;
+    }
+
+    private static ValueTask<T?> DeserializeFileAsync<T>(string filePath)
     {
         //string fileName = "..\\results_structure\\structure.json";
-        using FileStream openStream = File.OpenRead(fileName);
+        using FileStream openStream = File.OpenRead(filePath);
         return JsonSerializer.DeserializeAsync<T>(openStream);
     }
 }
