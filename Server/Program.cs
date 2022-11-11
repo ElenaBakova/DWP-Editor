@@ -1,7 +1,5 @@
 ﻿using Server;
 
-await ProcessFile.ValidateDocumentAsync();
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder();
 
 string origins = "myOrigins";
@@ -41,6 +39,7 @@ app.MapPost("/", async (HttpRequest request) =>
     }
 
     await ProcessFile.RunScriptAsync();
+    var errors = await ProcessFile.ValidateDocumentAsync();
 
     return Results.Ok();
 })

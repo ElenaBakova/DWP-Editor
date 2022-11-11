@@ -33,13 +33,17 @@ public class ProcessFile
         await process.WaitForExitAsync();
     }
 
-    public static async Task<List<string>> ValidateDocumentAsync()
+    /// <summary>
+    /// Validates structure and content of loaded .DOCX file
+    /// </summary>
+    /// <returns>List of errors</returns>
+    public static async Task<List<(string message, string sectionName)>> ValidateDocumentAsync()
     {
-        List<string> errorsList = new();
+        List<(string message, string sectionName)> errorsList = new();
         var structure = await DeserializeFileAsync<Structure>("..\\results_structure\\structure.json");
         if (structure == null)
         {
-            errorsList.Add("Пустой файл");
+            errorsList.Add(("Пустой файл", ""));
             return errorsList;
         }
 
@@ -47,14 +51,37 @@ public class ProcessFile
         foreach (var property in properties)
         {
             var value = property.GetValue(structure, null);
+            if (value == null)
+            {
+                var name = GetName(property.Name);
+                errorsList.Add(($"Отсутствует раздел {name}", name));
+            }
         }
 
         return errorsList;
     }
 
+    private static string GetName(string propertyName)
+    {
+        string name = "";
+        if (propertyName.Contains("Section"))
+        {
+            name = propertyName[7..];
+        }
+        else if (propertyName[0] == '_')
+        {
+            name = propertyName[1] + "." + propertyName[2];
+            if (propertyName.Length > 3) 
+            {
+                name += "." + propertyName[3];
+            }
+        }
+
+        return name;
+    }
+
     private static ValueTask<T?> DeserializeFileAsync<T>(string filePath)
     {
-        //string fileName = "..\\results_structure\\structure.json";
         using FileStream openStream = File.OpenRead(filePath);
         return JsonSerializer.DeserializeAsync<T>(openStream);
     }
