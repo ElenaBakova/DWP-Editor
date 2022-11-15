@@ -351,3 +351,5 @@ MigrationBackup/
 /front/package-lock.json
 /front/.idea/
 *.sln
+/results_structure
+/Files
