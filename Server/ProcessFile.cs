@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -54,18 +55,7 @@ public class ProcessFile
             errorsList.Add(("Пустой файл", ""));
             return errorsList;
         }
-        
-
-        /*var properties = structure.GetType().GetProperties();
-        foreach (var property in properties)
-        {
-            var value = property.GetValue(structure, null);
-            if (value == null)
-            {
-                var name = GetName(property.Name);
-                errorsList.Add(($"Отсутствует раздел {name}", name));
-            }
-        }*/
+        errorsList = await CheckContentAsync(content);
 
         return errorsList;
     }
@@ -87,7 +77,7 @@ public class ProcessFile
             if (value == null)
             {
                 var name = GetName(property.Name);
-                errorsList.Add(($"Отсутствует раздел {name}", name));
+                errorsList.Add(($"Отсутствует раздел {name}", property.Name));
             }
         }
 
@@ -96,7 +86,7 @@ public class ProcessFile
 
     private static string GetName(string propertyName)
     {
-        string name = "";
+        string name;
         if (propertyName.Contains("Section"))
         {
             name = propertyName[7..];
@@ -109,13 +99,54 @@ public class ProcessFile
                 name += "." + propertyName[3];
             }
         }
+        else
+        {
+            name = "Титульная страница";
+        }
 
         return name;
+    }
+
+    private static string GetTitle(string title)
+    {
+        title = title.Replace("\\", "");
+        title = Regex.Replace(title, "\\( штатных\\)\\?", " штатных");
+
+        return title;
     }
 
     private static async Task<T?> DeserializeFileAsync<T>(string filePath)
     {
         using FileStream openStream = File.OpenRead(filePath);
         return await JsonSerializer.DeserializeAsync<T>(openStream);
+    }
+
+    private static async Task<List<(string message, string sectionName)>> CheckContentAsync(Content content)
+    {
+        List<(string message, string sectionName)> errorsList = new();
+        var sample = await DeserializeFileAsync<Content>("..\\Server\\sample.json");
+
+        var properties = content.GetType().GetProperties();
+        foreach (var property in properties)
+        {
+            var contentValue = property.GetValue(content, null);
+            if (property.Name == "TitlePage")
+            {
+                // check title page method
+            }
+            else
+            {
+                var sampleValue = property.GetValue(sample, null);
+                string title = (string)(contentValue?.GetType().GetProperty("title")?.GetValue(contentValue, null) ?? "");
+                string pattern = (string)(sampleValue?.GetType().GetProperty("title")?.GetValue(sampleValue, null) ?? "");
+                bool areEqual = Regex.IsMatch(title, pattern, RegexOptions.Compiled);
+                if (!areEqual)
+                {
+                    errorsList.Add(($"Некорректное наименование раздела {GetName(property.Name)}. Ожидается: {GetTitle(pattern)}", property.Name));
+                }
+            }
+        }
+
+        return errorsList;
     }
 }
