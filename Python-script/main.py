@@ -67,8 +67,10 @@ def parse(doc):
             continue
 
         _match = re.match(r'\n*\d\.\d\.\d?', par)  # находим заголовки подразделов
+        _missmatch = re.match(r'\n*\d\.\d\.\d(\.\d)+',
+                              par)  # исключаем разделы по типу 3.1.3.2 которые перезаписываются как раздел 3.1.3
 
-        if _match is not None:
+        if _match is not None and _missmatch is None:
             m = _match.group(0)
 
             res[m] = Section()
@@ -83,7 +85,7 @@ def parse(doc):
                 res[r].links.append(m)
                 prev = m
             flag = True
-        elif flag:
+        elif flag or _missmatch is not None:
             res[m].content = res[m].content + par + "\n"
         else:
             res[r].content = res[r].content + par + "\n"
