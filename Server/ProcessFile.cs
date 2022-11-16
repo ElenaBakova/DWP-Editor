@@ -39,6 +39,39 @@ public class ProcessFile
     /// <returns>List of errors</returns>
     public static async Task<List<(string message, string sectionName)>> ValidateDocumentAsync()
     {
+        List<(string message, string sectionName)> errorsList = await GetStructureErrorsAsync();
+        errorsList.AddRange(await GetContentErrorsAsync());
+
+        return errorsList;
+    }
+
+    private static async Task<List<(string message, string sectionName)>> GetContentErrorsAsync()
+    {
+        List<(string message, string sectionName)> errorsList = new();
+        var content = await DeserializeFileAsync<Content>("..\\results_structure\\content.json");
+        if (content == null)
+        {
+            errorsList.Add(("Пустой файл", ""));
+            return errorsList;
+        }
+        
+
+        /*var properties = structure.GetType().GetProperties();
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(structure, null);
+            if (value == null)
+            {
+                var name = GetName(property.Name);
+                errorsList.Add(($"Отсутствует раздел {name}", name));
+            }
+        }*/
+
+        return errorsList;
+    }
+
+    private static async Task<List<(string message, string sectionName)>> GetStructureErrorsAsync()
+    {
         List<(string message, string sectionName)> errorsList = new();
         var structure = await DeserializeFileAsync<Structure>("..\\results_structure\\structure.json");
         if (structure == null)
@@ -80,9 +113,9 @@ public class ProcessFile
         return name;
     }
 
-    private static ValueTask<T?> DeserializeFileAsync<T>(string filePath)
+    private static async Task<T?> DeserializeFileAsync<T>(string filePath)
     {
         using FileStream openStream = File.OpenRead(filePath);
-        return JsonSerializer.DeserializeAsync<T>(openStream);
+        return await JsonSerializer.DeserializeAsync<T>(openStream);
     }
 }

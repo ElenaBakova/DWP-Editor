@@ -1,13 +1,14 @@
-﻿// Root myDeserializedClass = JsonSerializer.Deserialize<Root>(myJsonResponse);
+﻿namespace Server;
+
 using System.Text.Json.Serialization;
 
-public class Root
+public class Content
 {
     [JsonPropertyName("Титульная страница")]
-    public ТитульнаяСтраница TitlePage { get; set; }
+    public TitlePage TitlePage { get; set; }
 
     [JsonPropertyName("Раздел 1.")]
-    public Раздел1 _1 { get; set; }
+    public Section1 _1 { get; set; }
 
     [JsonPropertyName("1.1.")]
     public _11 _11 { get; set; }
@@ -22,7 +23,7 @@ public class Root
     public _14 _14 { get; set; }
 
     [JsonPropertyName("Раздел 2.")]
-    public Раздел2 _2 { get; set; }
+    public Section2 _2 { get; set; }
 
     [JsonPropertyName("2.1.")]
     public _21 _21 { get; set; }
@@ -34,7 +35,7 @@ public class Root
     public _22 _22 { get; set; }
 
     [JsonPropertyName("Раздел 3.")]
-    public Раздел3 _3 { get; set; }
+    public Section3 _3 { get; set; }
 
     [JsonPropertyName("3.1.")]
     public _31 _31 { get; set; }
@@ -94,7 +95,7 @@ public class Root
     public _343 _343 { get; set; }
 
     [JsonPropertyName("Раздел 4.")]
-    public Раздел4 _4 { get; set; }
+    public Section4 _4 { get; set; }
 }
 
 public class _11
@@ -331,7 +332,7 @@ public class _343
     public string text { get; set; }
 }
 
-public class Раздел1
+public class Section1
 {
     [JsonPropertyName("title")]
     public string title { get; set; }
@@ -340,7 +341,7 @@ public class Раздел1
     public string text { get; set; }
 }
 
-public class Раздел2
+public class Section2
 {
     [JsonPropertyName("title")]
     public string title { get; set; }
@@ -349,7 +350,7 @@ public class Раздел2
     public string text { get; set; }
 }
 
-public class Раздел3
+public class Section3
 {
     [JsonPropertyName("title")]
     public string title { get; set; }
@@ -358,7 +359,7 @@ public class Раздел3
     public string text { get; set; }
 }
 
-public class Раздел4
+public class Section4
 {
     [JsonPropertyName("title")]
     public string title { get; set; }
@@ -367,7 +368,7 @@ public class Раздел4
     public string text { get; set; }
 }
 
-public class ТитульнаяСтраница
+public class TitlePage
 {
     [JsonPropertyName("title")]
     public string title { get; set; }
