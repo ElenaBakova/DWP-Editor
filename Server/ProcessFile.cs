@@ -130,6 +130,10 @@ public class ProcessFile
         foreach (var property in properties)
         {
             var contentValue = property.GetValue(content, null);
+            if (contentValue == null)
+            {
+                continue;
+            }
             if (property.Name == "TitlePage")
             {
                 // check title page method
