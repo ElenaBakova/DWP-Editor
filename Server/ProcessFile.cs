@@ -130,17 +130,29 @@ public class ProcessFile
         foreach (var property in properties)
         {
             var contentValue = property.GetValue(content, null);
+            var sampleValue = property.GetValue(sample, null);
             if (contentValue == null)
             {
                 continue;
             }
             if (property.Name == "TitlePage")
             {
-                // check title page method
+                string text = (string)(contentValue?.GetType().GetProperty("text")?.GetValue(contentValue, null) ?? "");
+                string pattern = (string)(sampleValue?.GetType().GetProperty("text")?.GetValue(sampleValue, null) ?? "");
+                if (text == "")
+                {
+                    errorsList.Add(($"Титульная страница не заполнена", property.Name));
+                    continue;
+                }
+
+                bool areEqual = Regex.IsMatch(text, pattern, RegexOptions.Compiled);
+                if (!areEqual)
+                {
+                    errorsList.Add(($"Некорректно оформлена титульная страница", property.Name));
+                }
             }
             else
             {
-                var sampleValue = property.GetValue(sample, null);
                 string title = (string)(contentValue?.GetType().GetProperty("title")?.GetValue(contentValue, null) ?? "");
                 string pattern = (string)(sampleValue?.GetType().GetProperty("title")?.GetValue(sampleValue, null) ?? "");
                 bool areEqual = Regex.IsMatch(title, pattern, RegexOptions.Compiled);
