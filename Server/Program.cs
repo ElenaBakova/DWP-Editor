@@ -1,49 +1,51 @@
 ﻿using Server;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder();
+var builder = WebApplication.CreateBuilder();
 
-string origins = "myOrigins";
+const string origins = "myOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: origins,
-                      builder =>
-                      {
-                          builder.WithOrigins("http://localhost:5098", "http://localhost:7098", "http://localhost:3000");
-                      });
+        corsPolicyBuilder =>
+        {
+            corsPolicyBuilder.WithOrigins("http://localhost:5098", "http://localhost:7098", "http://localhost:3000");
+        });
 });
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapPost("/", async (HttpRequest request) =>
-{
-    IFormFile? file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
-    if (file == null || file.Length <= 0)
     {
-        return Results.BadRequest("File is empty");
-    }
+        var file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
+        if (file == null || file.Length <= 0)
+        {
+            return Results.BadRequest("File is empty");
+        }
 
-    string dirPath = Environment.CurrentDirectory + "\\..\\Files\\";
-    if (Directory.Exists(dirPath))
-    {
-        Directory.Delete(dirPath, true);
-    }
-    Directory.CreateDirectory(dirPath);
+        var dirPath = Environment.CurrentDirectory + "\\..\\Files\\";
+        if (Directory.Exists(dirPath))
+        {
+            Directory.Delete(dirPath, true);
+        }
 
-    string filePath = dirPath + file.Name;
-    using (FileStream stream = File.Create(filePath))
-    {
-        await file.CopyToAsync(stream);
-    }
+        Directory.CreateDirectory(dirPath);
 
-    await ProcessFile.RunScriptAsync();
-    var errors = await ProcessFile.ValidateDocumentAsync();
+        var filePath = dirPath + file.Name;
+        using (var stream = File.Create(filePath))
+        {
+            await file.CopyToAsync(stream);
+        }
 
-    return Results.Ok();
-})
-.Accepts<IFormFile>("multipart/form-data");
+        await ProcessFile.RunScriptAsync();
+        var errors = await ProcessFile.ValidateDocumentAsync();
+        // var temp = errors.Select(item => item.message);
+
+        return Results.Ok(errors);
+    })
+    .Accepts<IFormFile>("multipart/form-data");
 
 app.UseCors(origins);
 app.Run();

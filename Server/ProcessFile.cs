@@ -19,8 +19,8 @@ public class ProcessFile
     {
         ProcessStartInfo startInfo = new("python");
 
-        string directory = scriptPath;
-        string script = "main.py";
+        var directory = scriptPath;
+        const string script = "main.py";
 
         startInfo.WorkingDirectory = directory;
         startInfo.Arguments = script;
@@ -29,7 +29,7 @@ public class ProcessFile
         startInfo.RedirectStandardError = true;
         startInfo.RedirectStandardOutput = true;
 
-        using Process process = new() { StartInfo = startInfo };
+        using Process process = new() {StartInfo = startInfo};
         _ = process.Start();
         await process.WaitForExitAsync();
     }
@@ -40,7 +40,7 @@ public class ProcessFile
     /// <returns>List of errors</returns>
     public static async Task<List<(string message, string sectionName)>> ValidateDocumentAsync()
     {
-        List<(string message, string sectionName)> errorsList = await GetStructureErrorsAsync();
+        var errorsList = await GetStructureErrorsAsync();
         errorsList.AddRange(await GetContentErrorsAsync());
 
         return errorsList;
@@ -55,6 +55,7 @@ public class ProcessFile
             errorsList.Add(("Пустой файл", ""));
             return errorsList;
         }
+
         errorsList = await CheckContentAsync(content);
 
         return errorsList;
@@ -94,7 +95,7 @@ public class ProcessFile
         else if (propertyName[0] == '_')
         {
             name = propertyName[1] + "." + propertyName[2];
-            if (propertyName.Length > 3) 
+            if (propertyName.Length > 3)
             {
                 name += "." + propertyName[3];
             }
@@ -117,7 +118,7 @@ public class ProcessFile
 
     private static async Task<T?> DeserializeFileAsync<T>(string filePath)
     {
-        using FileStream openStream = File.OpenRead(filePath);
+        using var openStream = File.OpenRead(filePath);
         return await JsonSerializer.DeserializeAsync<T>(openStream);
     }
 
@@ -135,30 +136,38 @@ public class ProcessFile
             {
                 continue;
             }
+
             if (property.Name == "TitlePage")
             {
-                string text = (string)(contentValue?.GetType().GetProperty("text")?.GetValue(contentValue, null) ?? "");
-                string pattern = (string)(sampleValue?.GetType().GetProperty("text")?.GetValue(sampleValue, null) ?? "");
+                var text =
+                    (string) (contentValue.GetType().GetProperty("text")?.GetValue(contentValue, null) ?? "");
+                var pattern =
+                    (string) (sampleValue?.GetType().GetProperty("text")?.GetValue(sampleValue, null) ?? "");
                 if (text == "")
                 {
-                    errorsList.Add(($"Титульная страница не заполнена", property.Name));
+                    errorsList.Add(("Титульная страница не заполнена", property.Name));
                     continue;
                 }
 
-                bool areEqual = Regex.IsMatch(text, pattern, RegexOptions.Compiled);
+                var areEqual = Regex.IsMatch(text, pattern, RegexOptions.Compiled);
                 if (!areEqual)
                 {
-                    errorsList.Add(($"Некорректно оформлена титульная страница", property.Name));
+                    errorsList.Add(("Некорректно оформлена титульная страница", property.Name));
                 }
             }
             else
             {
-                string title = (string)(contentValue?.GetType().GetProperty("title")?.GetValue(contentValue, null) ?? "");
-                string pattern = (string)(sampleValue?.GetType().GetProperty("title")?.GetValue(sampleValue, null) ?? "");
-                bool areEqual = Regex.IsMatch(title, pattern, RegexOptions.Compiled);
+                var title =
+                    (string) (contentValue?.GetType().GetProperty("title")?.GetValue(contentValue, null) ?? "");
+                var pattern =
+                    (string) (sampleValue?.GetType().GetProperty("title")?.GetValue(sampleValue, null) ?? "");
+
+                var areEqual = Regex.IsMatch(title, pattern, RegexOptions.Compiled);
                 if (!areEqual)
                 {
-                    errorsList.Add(($"Некорректное наименование раздела {GetName(property.Name)}. Ожидается: {GetTitle(pattern)}", property.Name));
+                    errorsList.Add((
+                        $"Некорректное наименование раздела {GetName(property.Name)}. Ожидается: {GetTitle(pattern)}",
+                        property.Name));
                 }
             }
         }
