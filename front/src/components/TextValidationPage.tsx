@@ -5,10 +5,16 @@ import {Grid, Typography} from "@mui/material";
 
 const AcceptedFileType = {Doc: '.docx'};
 
+interface IErrorsData {
+    message: string;
+    // section: string;
+}
+
 export const TextValidationPage = React.memo(() => {
     const [isDropActive, setIsDropActive] = React.useState(false)
     const [isFileDropped, setIsFileDropped] = React.useState(false)
     const [files, setFiles] = React.useState<File[]>([])
+    const [errors, setErrors] = React.useState<IErrorsData[]>([])
     const fileRef = React.useRef<HTMLInputElement>(null);
 
     // File formats that can be uploaded
@@ -31,8 +37,10 @@ export const TextValidationPage = React.memo(() => {
             body: formData,
         })
             .then(
-                () => {
-                    console.log("Files uploaded");
+                (response) => {
+                    response.json().then(data => {
+                        setErrors(data)
+                    })
                 },
                 (error) => {
                     console.log("upload file error");
@@ -54,8 +62,6 @@ export const TextValidationPage = React.memo(() => {
         <Grid container direction="column" sx={{
             m: 10,
             p: 3,
-            justifyContent: 'center',
-            alignContent: 'center',
             width: 'fit-content',
             border: '2px dashed grey'
         }}

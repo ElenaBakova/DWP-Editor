@@ -1,13 +1,19 @@
 import React from 'react';
 import {TopBar} from "./components/TopBar";
 import {TextValidationPage} from "./components/TextValidationPage";
+import {Grid} from "@mui/material";
 
 function App() {
     return (
-        <div className="container mx-auto p-4 flex justify-center">
-            <TopBar/>
-            <TextValidationPage/>
-        </div>
+        <Grid container justifyContent="center" alignItems="center" direction="column">
+            <Grid container item>
+                <TopBar/>
+            </Grid>
+
+            <Grid item>
+                <TextValidationPage/>
+            </Grid>
+        </Grid>
     );
 }
 

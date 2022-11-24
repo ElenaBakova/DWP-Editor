@@ -6,7 +6,7 @@ export function TopBar() {
         <Box sx={{flexGrow: 1}}>
             <AppBar position="static" color="primary" enableColorOnDark>
                 <Toolbar>
-                    <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
+                    <Typography variant="h6" component="div">
                         Онлайн редактор РПД
                     </Typography>
                 </Toolbar>
