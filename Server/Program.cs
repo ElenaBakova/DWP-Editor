@@ -12,7 +12,18 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web Service API V1");
+    options.RoutePrefix = string.Empty;
+
+});
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -41,11 +52,11 @@ app.MapPost("/", async (HttpRequest request) =>
 
         await ProcessFile.RunScriptAsync();
         var errors = await ProcessFile.ValidateDocumentAsync();
-        // var temp = errors.Select(item => item.message);
 
         return Results.Ok(errors);
     })
-    .Accepts<IFormFile>("multipart/form-data");
+    .Accepts<IFormFile>("multipart/form-data")
+    .Produces<List<Error>>();
 
 app.UseCors(origins);
 app.Run();

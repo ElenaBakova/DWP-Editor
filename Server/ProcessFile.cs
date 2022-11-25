@@ -38,7 +38,7 @@ public class ProcessFile
     /// Validates structure and content of loaded .DOCX file
     /// </summary>
     /// <returns>List of errors</returns>
-    public static async Task<List<(string message, string sectionName)>> ValidateDocumentAsync()
+    public static async Task<List<Error>> ValidateDocumentAsync()
     {
         var errorsList = await GetStructureErrorsAsync();
         errorsList.AddRange(await GetContentErrorsAsync());
@@ -46,13 +46,13 @@ public class ProcessFile
         return errorsList;
     }
 
-    private static async Task<List<(string message, string sectionName)>> GetContentErrorsAsync()
+    private static async Task<List<Error>> GetContentErrorsAsync()
     {
-        List<(string message, string sectionName)> errorsList = new();
+        List<Error> errorsList = new();
         var content = await DeserializeFileAsync<Content>("..\\results_structure\\content.json");
         if (content == null)
         {
-            errorsList.Add(("Пустой файл", ""));
+            errorsList.Add(new Error("Пустой файл", ""));
             return errorsList;
         }
 
@@ -61,13 +61,13 @@ public class ProcessFile
         return errorsList;
     }
 
-    private static async Task<List<(string message, string sectionName)>> GetStructureErrorsAsync()
+    private static async Task<List<Error>> GetStructureErrorsAsync()
     {
-        List<(string message, string sectionName)> errorsList = new();
+        List<Error> errorsList = new();
         var structure = await DeserializeFileAsync<Structure>("..\\results_structure\\structure.json");
         if (structure == null)
         {
-            errorsList.Add(("Пустой файл", ""));
+            errorsList.Add(new Error("Пустой файл", ""));
             return errorsList;
         }
 
@@ -78,7 +78,7 @@ public class ProcessFile
             if (value == null)
             {
                 var name = GetName(property.Name);
-                errorsList.Add(($"Отсутствует раздел {name}", property.Name));
+                errorsList.Add(new Error($"Отсутствует раздел {name}", property.Name));
             }
         }
 
@@ -122,9 +122,9 @@ public class ProcessFile
         return await JsonSerializer.DeserializeAsync<T>(openStream);
     }
 
-    private static async Task<List<(string message, string sectionName)>> CheckContentAsync(Content content)
+    private static async Task<List<Error>> CheckContentAsync(Content content)
     {
-        List<(string message, string sectionName)> errorsList = new();
+        List<Error> errorsList = new();
         var sample = await DeserializeFileAsync<Content>("..\\Server\\sample.json");
 
         var properties = content.GetType().GetProperties();
@@ -145,14 +145,14 @@ public class ProcessFile
                     (string) (sampleValue?.GetType().GetProperty("text")?.GetValue(sampleValue, null) ?? "");
                 if (text == "")
                 {
-                    errorsList.Add(("Титульная страница не заполнена", property.Name));
+                    errorsList.Add(new Error("Титульная страница не заполнена", property.Name));
                     continue;
                 }
 
                 var areEqual = Regex.IsMatch(text, pattern, RegexOptions.Compiled);
                 if (!areEqual)
                 {
-                    errorsList.Add(("Некорректно оформлена титульная страница", property.Name));
+                    errorsList.Add(new Error("Некорректно оформлена титульная страница", property.Name));
                 }
             }
             else
@@ -165,9 +165,7 @@ public class ProcessFile
                 var areEqual = Regex.IsMatch(title, pattern, RegexOptions.Compiled);
                 if (!areEqual)
                 {
-                    errorsList.Add((
-                        $"Некорректное наименование раздела {GetName(property.Name)}. Ожидается: {GetTitle(pattern)}",
-                        property.Name));
+                    errorsList.Add(new Error($"Некорректное наименование раздела {GetName(property.Name)}. Ожидается: {GetTitle(pattern)}", property.Name));
                 }
             }
         }
