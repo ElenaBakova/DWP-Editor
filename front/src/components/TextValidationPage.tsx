@@ -1,7 +1,7 @@
 import React from 'react'
 import {DropZone} from "./DropZone";
 import Button from "@mui/material/Button";
-import {Box, Grid, Typography} from "@mui/material";
+import {Box, Divider, Grid, List, ListItem, ListItemText, Typography} from "@mui/material";
 
 const AcceptedFileType = {Doc: '.docx'};
 
@@ -48,6 +48,12 @@ export const TextValidationPage = React.memo(() => {
             method: "POST",
             body: formData,
         })
+            .then((response) => {
+                if (response.status >= 400 && response.status < 600) {
+                    throw new Error("Bad response from server");
+                }
+                return response;
+            })
             .then(
                 (response) => {
                     response.json().then((data: ErrorsData[]) => {
@@ -59,12 +65,10 @@ export const TextValidationPage = React.memo(() => {
                     })
                 },
                 (error) => {
-                    console.log("upload file error");
-                    console.log(error);
                     setErrorsState({
                         errors: [],
                         isOk: false,
-                        clicked: false
+                        clicked: true
                     })
                 }
             );
@@ -77,6 +81,36 @@ export const TextValidationPage = React.memo(() => {
     const onFilesDrop = (file: File[]) => {
         setFiles(file)
         setIsFileDropped(true)
+    }
+
+    const renderErrors = (notifications: ErrorsData[]) => {
+        return (
+            <List
+                sx={{
+                    width: '100%',
+                    bgcolor: 'aliceblue',
+                    position: 'relative',
+                    overflow: 'auto',
+                    maxHeight: 300,
+                    padding: 2,
+                    margin: 1,
+                    marginBottom: 10,
+                    marginTop: 0
+                    //'& ul': { padding: 4, margin: 10, marginTop: 0 },
+                }}
+            >
+                {notifications.map((item, index) =>
+                    <div key={index}>
+                        <ListItem alignItems="flex-start">
+                            <ListItemText
+                                primary={item.message}>
+                            </ListItemText>
+                        </ListItem>
+                        <Divider variant="middle"/>
+                    </div>
+                )}
+            </List>
+        )
     }
 
     return (
@@ -93,9 +127,9 @@ export const TextValidationPage = React.memo(() => {
                                 style={{fontWeight: 600, margin: '15px', marginBottom: '0px'}}>
                         Перетащите файл сюда
                     </Typography>
-                    <div>
+                    {/*<div>
                         <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
-                    </div>
+                    </div>*/}
                 </DropZone>
                 <Button
                     variant="contained"
@@ -120,9 +154,11 @@ export const TextValidationPage = React.memo(() => {
                 }
             </Grid>
 
-            {/*{errors.length == 0 &&*/}
-            {/*    <Typography align={"center"} color="red">Ошибок не найдено</Typography>*/}
-            {/*}*/}
+            {errorsState.clicked && !errorsState.isOk &&
+                <Typography align={"center"} color="red">Возникла ошибка при обработке файла</Typography>
+            }
+
+            {errorsState.clicked && errorsState.isOk && renderErrors(errorsState.errors)}
         </Box>
     )
 })
