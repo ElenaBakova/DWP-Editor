@@ -1,7 +1,7 @@
 import React from 'react'
 import {DropZone} from "./DropZone";
 import Button from "@mui/material/Button";
-import {Box, Divider, Grid, List, ListItem, ListItemText, Typography} from "@mui/material";
+import {Divider, Grid, List, ListItem, ListItemText, Typography} from "@mui/material";
 
 const AcceptedFileType = {Doc: '.docx'};
 
@@ -83,23 +83,22 @@ export const TextValidationPage = React.memo(() => {
         setIsFileDropped(true)
     }
 
-    const renderErrors = (notifications: ErrorsData[]) => {
+    const renderErrors = (errorsData: ErrorsData[]) => {
         return (
             <List
                 sx={{
-                    width: '100%',
                     bgcolor: 'aliceblue',
                     position: 'relative',
                     overflow: 'auto',
                     maxHeight: 300,
+                    width: 700,
                     padding: 2,
-                    margin: 1,
-                    marginBottom: 10,
-                    marginTop: 0
-                    //'& ul': { padding: 4, margin: 10, marginTop: 0 },
+                    margin: 3,
+                    marginTop: 0,
+                    word_break: 'break-all',
                 }}
             >
-                {notifications.map((item, index) =>
+                {errorsData.map((item, index) =>
                     <div key={index}>
                         <ListItem alignItems="flex-start">
                             <ListItemText
@@ -114,11 +113,13 @@ export const TextValidationPage = React.memo(() => {
     }
 
     return (
-        <Box>
-            <Grid container direction="column" sx={{
-                m: 10,
+        <Grid container direction="column" sx={{alignItems: 'center'}}>
+            <Grid container item direction="column" sx={{
+                m: 7,
+                mb: 3,
                 p: 3,
                 width: 'fit-content',
+                height: 'fit-content',
                 border: '2px dashed grey'
             }}
             >
@@ -127,9 +128,9 @@ export const TextValidationPage = React.memo(() => {
                                 style={{fontWeight: 600, margin: '15px', marginBottom: '0px'}}>
                         Перетащите файл сюда
                     </Typography>
-                    {/*<div>
+                    <div>
                         <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
-                    </div>*/}
+                    </div>
                 </DropZone>
                 <Button
                     variant="contained"
@@ -158,8 +159,15 @@ export const TextValidationPage = React.memo(() => {
                 <Typography align={"center"} color="red">Возникла ошибка при обработке файла</Typography>
             }
 
-            {errorsState.clicked && errorsState.isOk && renderErrors(errorsState.errors)}
-        </Box>
+            {errorsState.clicked && errorsState.isOk && errorsState.errors.length >= 0 &&
+                <Grid item>
+                    <Typography sx={{mb: 2}} variant="h6" component="div" align="justify">
+                        Ошибок найдено: {errorsState.errors.length}
+                    </Typography>
+                    {errorsState.errors.length > 0 && renderErrors(errorsState.errors)}
+                </Grid>
+            }
+        </Grid>
     )
 })
 

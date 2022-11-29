@@ -5,7 +5,7 @@ import {Grid} from "@mui/material";
 
 function App() {
     return (
-        <Grid container justifyContent="center" alignItems="center" direction="column">
+        <Grid container direction="column">
             <Grid container item>
                 <TopBar/>
             </Grid>
