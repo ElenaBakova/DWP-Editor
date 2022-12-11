@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Server.Models;
 
 /// <summary>
 /// Class for parsing file
@@ -125,7 +126,7 @@ public class ProcessFile
     private static async Task<List<Error>> CheckContentAsync(Content content)
     {
         List<Error> errorsList = new();
-        var sample = await DeserializeFileAsync<Content>("..\\Server\\sample.json");
+        var sample = await DeserializeFileAsync<Content>("..\\Server\\Models\\sample.json");
 
         var properties = content.GetType().GetProperties();
         foreach (var property in properties)

@@ -1,4 +1,4 @@
-﻿namespace Server;
+﻿namespace Server.Models;
 
 using System.Text.Json.Serialization;
 

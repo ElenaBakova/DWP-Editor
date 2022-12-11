@@ -1,4 +1,4 @@
-﻿namespace Server;
+﻿namespace Server.Models;
 
 using System.Text.Json.Serialization;
 
@@ -30,7 +30,7 @@ public class Structure
 
     [JsonPropertyName("2.1.1")]
     public object[] _211 { get; set; }
-    
+
     [JsonPropertyName("2.2.")]
     public object[] _22 { get; set; }
 
@@ -42,7 +42,7 @@ public class Structure
 
     [JsonPropertyName("3.1.1")]
     public object[] _311 { get; set; }
-    
+
     [JsonPropertyName("3.1.2")]
     public object[] _312 { get; set; }
 
@@ -93,7 +93,7 @@ public class Structure
 
     [JsonPropertyName("3.4.3")]
     public object[] _343 { get; set; }
-    
+
     [JsonPropertyName("Раздел 4.")]
     public string[] Section4 { get; set; }
 }

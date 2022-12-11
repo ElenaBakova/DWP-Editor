@@ -1,4 +1,5 @@
 ﻿using Server;
+using Server.Models;
 
 var builder = WebApplication.CreateBuilder();
 
