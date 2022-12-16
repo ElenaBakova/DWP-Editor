@@ -147,7 +147,7 @@ export const TextValidationPage = React.memo(() => {
                         component="label"
                         style={{textTransform: 'none', fontSize: 'medium', margin: '15px', marginTop: '0px'}}
                         onClick={handleClick}>
-                        Загрузить
+                        Проверить
                     </Button>
                 }
                 {files.length == 0 && isFileDropped &&
