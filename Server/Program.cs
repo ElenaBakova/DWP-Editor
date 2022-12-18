@@ -34,7 +34,7 @@ app.MapPost("/", async (HttpRequest request) =>
         var file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
         if (file == null || file.Length <= 0)
         {
-            return Results.BadRequest("File is empty");
+            return Results.Ok(new List<Error> { new Error("Файл пуст", "") });
         }
 
         var dirPath = Environment.CurrentDirectory + "\\..\\Files\\";
