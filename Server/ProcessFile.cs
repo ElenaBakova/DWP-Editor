@@ -53,7 +53,6 @@ public class ProcessFile
         var content = await DeserializeFileAsync<Content>("..\\results_structure\\content.json");
         if (content == null)
         {
-            errorsList.Add(new Error("Пустой файл", ""));
             return errorsList;
         }
 
@@ -68,7 +67,6 @@ public class ProcessFile
         var structure = await DeserializeFileAsync<Structure>("..\\results_structure\\structure.json");
         if (structure == null)
         {
-            errorsList.Add(new Error("Пустой файл", ""));
             return errorsList;
         }
 
@@ -129,8 +127,14 @@ public class ProcessFile
         var splittedPattern = pattern.Split('\n');
 
         List<Error> errorsList = new();
+
         if (splittedText.Length != splittedPattern.Length)
         {
+            if (splittedText.Length > 0 && splittedText[0] == "Санкт-Петербургский государственный университет")
+            {
+                errorsList.Add(new Error("На титульной странице необходимо добавить строку \"Правительство Российской Федерации\"", propertyName));
+            }
+
             errorsList.Add(new Error("Некорректно оформлена титульная страница", propertyName));
             return errorsList;
         }
