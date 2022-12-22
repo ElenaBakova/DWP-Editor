@@ -53,7 +53,6 @@ public class ProcessFile
         var content = await DeserializeFileAsync<Content>("..\\results_structure\\content.json");
         if (content == null)
         {
-            errorsList.Add(new Error("Пустой файл", ""));
             return errorsList;
         }
 
@@ -68,7 +67,6 @@ public class ProcessFile
         var structure = await DeserializeFileAsync<Structure>("..\\results_structure\\structure.json");
         if (structure == null)
         {
-            errorsList.Add(new Error("Пустой файл", ""));
             return errorsList;
         }
 
@@ -123,6 +121,81 @@ public class ProcessFile
         return await JsonSerializer.DeserializeAsync<T>(openStream);
     }
 
+    private static List<Error> CheckTitlePage(string text, string pattern, string propertyName)
+    {
+        var splittedText = text.Split('\n');
+        var splittedPattern = pattern.Split('\n');
+
+        List<Error> errorsList = new();
+
+        if (splittedText.Length != splittedPattern.Length)
+        {
+            if (splittedText.Length > 0 && splittedText[0] == "Санкт-Петербургский государственный университет")
+            {
+                errorsList.Add(new Error("На титульной странице необходимо добавить строку \"Правительство Российской Федерации\"", propertyName));
+            }
+
+            errorsList.Add(new Error("Некорректно оформлена титульная страница", propertyName));
+            return errorsList;
+        }
+
+        for (int i = 0; i < splittedText.Length; i++)
+        {
+            var areEqual = Regex.IsMatch(splittedText[i], splittedPattern[i], RegexOptions.Compiled);
+            if (!areEqual)
+            {
+                errorsList.Add(SwitchErrors(i, propertyName, splittedPattern[i]));
+            }
+        }
+
+        return errorsList;
+    }
+
+    private static Error SwitchErrors(int index, string propertyName, string pattern)
+    {
+        if (index < 3 || index == 6 || index == 10)
+        {
+            return new Error($"На титульной странице в строке {index + 1} ожидается: {pattern}", propertyName);
+        }
+
+        string message = "";
+        switch (index)
+        {
+            case 0:
+            case 1:
+            case 2:
+            case 6:
+            case 10:
+                message = $": {pattern}";
+                break;
+            case 3:
+                message = ": УЧЕБНОЙ ДИСЦИПЛИНЫ (ПРАКТИКИ)";
+                break;
+            case 4:
+                message = " наименование на русском языке";
+                break;
+            case 5:
+                message = " наименование на английском языке";
+                break;
+            case 7:
+                message = " список языков обучения через запятую";
+                break;
+            case 8:
+                message = ": Трудоемкость (границы трудоёмкости) в зачетных единицах: ";
+                break;
+            case 9:
+                message = ": Регистрационный номер рабочей программы: ";
+                break;
+            case 11:
+                message = " год";
+                break;
+            default:
+                break;
+        }
+
+        return new Error($"На титульной странице в строке {index + 1} ожидается{message}", propertyName);
+    }
+
     private static async Task<List<Error>> CheckContentAsync(Content content)
     {
         List<Error> errorsList = new();
@@ -150,11 +223,7 @@ public class ProcessFile
                     continue;
                 }
 
-                var areEqual = Regex.IsMatch(text, pattern, RegexOptions.Compiled);
-                if (!areEqual)
-                {
-                    errorsList.Add(new Error("Некорректно оформлена титульная страница", property.Name));
-                }
+                errorsList.AddRange(CheckTitlePage(text, pattern, property.Name));
             }
             else
             {
