@@ -5,12 +5,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "80"
-      - "5098"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:C:\Users\ContainerUser\AppData\Roaming\Microsoft\UserSecrets:ro
-      - ${APPDATA}/ASP.NET/Https:C:\Users\ContainerUser\AppData\Roaming\ASP.NET\Https:ro
-
+      - "5098:80"
+    
   client:
-    ports: 
-      - "5000:3000"
+    ports:
+      - "3000:3000"
