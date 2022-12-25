@@ -9,7 +9,7 @@ from docx import Document
 from doc.Section import Section
 from doc.WorkProgram import WorkProgram
 
-dir_path = os.path.dirname(os.path.realpath(__file__)) + "\\..\\"
+dir_path = os.path.abspath(os.path.join(os.path.realpath(__file__), '..', '..'))
 
 
 def read_docx(filename):
@@ -135,16 +135,16 @@ def feed(file):
 
     data1 = feed_content(file)
 
-    result_dir_path = dir_path + "\\results_structure\\"
+    result_dir_path = os.path.join(dir_path, 'results_structure')
 
     if os.path.exists(result_dir_path):
         shutil.rmtree(result_dir_path)
     os.makedirs(result_dir_path)
     # file_path = result_dir_path + os.path.split(file)[1][0:-5]
 
-    with open(result_dir_path + "structure.json", "w", encoding='utf-8') as write_file:
+    with open(os.path.join(result_dir_path, 'structure.json'), "w", encoding='utf-8') as write_file:
         json.dump(data, write_file, indent=4, ensure_ascii=False)
-    with open(result_dir_path + "content.json", "w", encoding='utf-8') as write_file:
+    with open(os.path.join(result_dir_path, 'content.json'), "w", encoding='utf-8') as write_file:
         json.dump(data1, write_file, indent=4, ensure_ascii=False)
 
 
@@ -160,10 +160,10 @@ def template(file):
 '''''
 
 if __name__ == '__main__':
-    folder_path = os.path.join(dir_path, "Files\\")
+    folder_path = os.path.join(dir_path, "Files")
     if not os.path.exists(folder_path):
-        sys.exit(1)
+        sys.exit("file doesn't exist")
 
     for f in os.listdir(folder_path):
-        # print(f)
+        # print(os.path.join(folder_path, f))
         feed(os.path.join(folder_path, f))

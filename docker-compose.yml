@@ -4,13 +4,13 @@ services:
   server:
     image: ${DOCKER_REGISTRY-}server
     build:
-      context: .
-      dockerfile: Server/Dockerfile
+      context: ./Server
+      dockerfile: ./Dockerfile
 
   client:
     image: client
     build:
       context: .
-      dockerfile: front/Dockerfile
+      dockerfile: ./front/Dockerfile
     depends_on:
       - server

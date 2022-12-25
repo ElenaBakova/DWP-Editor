@@ -11,14 +11,14 @@ using Server.Models;
 /// </summary>
 public class ProcessFile
 {
-    private static readonly string scriptPath = Environment.CurrentDirectory + "/Python-script/";
+    private static readonly string scriptPath = Path.Combine(Environment.CurrentDirectory, "Python-script");
 
     /// <summary>
     /// Runs python main.py script
     /// </summary>
     public static async Task RunScriptAsync()
     {
-        ProcessStartInfo startInfo = new("python");
+        ProcessStartInfo startInfo = new("python3");
 
         var directory = scriptPath;
         const string script = "main.py";
@@ -199,7 +199,7 @@ public class ProcessFile
     private static async Task<List<Error>> CheckContentAsync(Content content)
     {
         List<Error> errorsList = new();
-        var sample = await DeserializeFileAsync<Content>("../Server/Models/sample.json");
+        var sample = await DeserializeFileAsync<Content>("Models/sample.json");
 
         var properties = content.GetType().GetProperties();
         foreach (var property in properties)
