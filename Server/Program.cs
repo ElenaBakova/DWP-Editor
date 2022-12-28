@@ -9,7 +9,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: origins,
         corsPolicyBuilder =>
         {
-            corsPolicyBuilder.WithOrigins("http://localhost:5098", "http://localhost:7098", "http://localhost:3000");
+            corsPolicyBuilder.WithOrigins("http://localhost:5098", "http://localhost:80", "http://localhost:3000");
         });
 });
 
@@ -37,7 +37,7 @@ app.MapPost("/", async (HttpRequest request) =>
             return Results.Ok(new List<Error> { new Error("Файл пуст", "") });
         }
 
-        var dirPath = Environment.CurrentDirectory + "\\..\\Files\\";
+        var dirPath = Path.Combine(Environment.CurrentDirectory, "Files");
         if (Directory.Exists(dirPath))
         {
             Directory.Delete(dirPath, true);
@@ -45,7 +45,7 @@ app.MapPost("/", async (HttpRequest request) =>
 
         Directory.CreateDirectory(dirPath);
 
-        var filePath = dirPath + file.Name;
+        var filePath = Path.Combine(dirPath, file.Name);
         using (var stream = File.Create(filePath))
         {
             await file.CopyToAsync(stream);
