@@ -93,7 +93,11 @@ public class ProcessFile
         }
         else if (propertyName[0] == '_')
         {
-            name = propertyName[1] + "." + propertyName[2];
+            name = propertyName[1].ToString();
+            if (propertyName.Length > 2)
+            {
+                name += "." + propertyName[2];
+            }
             if (propertyName.Length > 3)
             {
                 name += "." + propertyName[3];
