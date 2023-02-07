@@ -23,7 +23,6 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web Service API V1");
     options.RoutePrefix = string.Empty;
-
 });
 
 app.UseDefaultFiles();
@@ -34,7 +33,7 @@ app.MapPost("/", async (HttpRequest request) =>
         var file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
         if (file == null || file.Length <= 0)
         {
-            return Results.Ok(new List<Error> { new Error("Файл пуст", "") });
+            return Results.Ok(new List<Error> {new("Файл пуст", "")});
         }
 
         var dirPath = Path.Combine(Environment.CurrentDirectory, "Files");
