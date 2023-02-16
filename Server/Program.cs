@@ -30,33 +30,56 @@ app.UseStaticFiles();
 
 app.MapPost("/", async (HttpRequest request) =>
     {
-        var file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
-        if (file == null || file.Length <= 0)
+        var files = request.Form.Files.OfType<IFormFile[]?>().FirstOrDefault();
+
+        if (files == null || files.Length <= 0)
         {
-            return Results.Ok(new List<Error> {new("Файл пуст", "")});
+            return Results.BadRequest();
         }
 
-        var dirPath = Path.Combine(Environment.CurrentDirectory, "Files");
-        if (Directory.Exists(dirPath))
+        List<List<Error>> result = new();
+        foreach (var file in files)
         {
-            Directory.Delete(dirPath, true);
+            var errors = await GetErrorsAsync(file);
+            result.Add(errors);
         }
 
-        Directory.CreateDirectory(dirPath);
-
-        var filePath = Path.Combine(dirPath, file.Name);
-        using (var stream = File.Create(filePath))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        await ProcessFile.RunScriptAsync();
-        var errors = await ProcessFile.ValidateDocumentAsync();
-
-        return Results.Ok(errors);
+        return Results.Ok(result);
     })
-    .Accepts<IFormFile>("multipart/form-data")
-    .Produces<List<Error>>();
+    .Accepts<IFormFile[]>("multipart/form-data")
+    .Produces<List<List<Error>>>();
 
 app.UseCors(origins);
 app.Run();
+
+/// <summary>
+/// Processes given file
+/// </summary>
+/// <param name="file">File to process</param>
+/// <returns>List of errors in the file</returns>
+static async Task<List<Error>> GetErrorsAsync(IFormFile file)
+{
+    if (file == null || file.Length <= 0)
+    {
+        return new List<Error> { new("Файл пуст", "") };
+    }
+
+    var dirPath = Path.Combine(Environment.CurrentDirectory, "Files");
+    if (Directory.Exists(dirPath))
+    {
+        Directory.Delete(dirPath, true);
+    }
+
+    Directory.CreateDirectory(dirPath);
+
+    var filePath = Path.Combine(dirPath, file.Name);
+    using (var stream = File.Create(filePath))
+    {
+        await file.CopyToAsync(stream);
+    }
+
+    await ProcessFile.RunScriptAsync();
+    var errors = await ProcessFile.ValidateDocumentAsync();
+
+    return errors;
+}
