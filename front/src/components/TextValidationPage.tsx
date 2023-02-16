@@ -5,14 +5,23 @@ import {Divider, Grid, List, ListItem, ListItemText, Typography} from "@mui/mate
 
 const AcceptedFileType = {Doc: '.docx'};
 
+// One error message
 type ErrorsData = {
+    // Error message to display
     message: string;
+
+    // Section in file
     section: string;
 };
 
 interface IErrorsState {
+    // Array with error messages
     errors: ErrorsData[];
+
+    // Whether the check button was clicked
     clicked: boolean;
+
+    // True if errors occured while checking files
     isOk: boolean;
 }
 
@@ -33,8 +42,8 @@ export const TextValidationPage = React.memo(() => {
     const acceptedFormats = AcceptedFileType.Doc;
 
     const handleFileSelect = (event: any) => {
-        const file = event?.target?.files?.[0];
-        file ? setFiles([file]) : setFiles(files);
+        const file = event?.target?.files;
+        file ? setFiles(file) : setFiles(files);
     }
 
     const handleClick = async () => {
@@ -126,7 +135,7 @@ export const TextValidationPage = React.memo(() => {
                 <DropZone onDragStateChange={onDragStateChange} onFilesDrop={onFilesDrop}>
                     <Typography align={"center"} variant={"h5"}
                                 style={{fontWeight: 600, margin: '15px', marginBottom: '0px'}}>
-                        Перетащите файл сюда
+                        Перетащите файлы сюда
                     </Typography>
                     <div>
                         <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
@@ -138,7 +147,8 @@ export const TextValidationPage = React.memo(() => {
                     style={{textTransform: 'none', fontSize: 'medium', margin: '15px'}}
                 >
                     или нажмите для загрузки
-                    <input ref={fileRef} hidden type="file" accept={acceptedFormats} onChange={handleFileSelect}/>
+                    <input ref={fileRef} type={"file"} accept={acceptedFormats} onChange={handleFileSelect} hidden
+                           multiple/>
                 </Button>
 
                 {files.length > 0 &&
@@ -151,12 +161,12 @@ export const TextValidationPage = React.memo(() => {
                     </Button>
                 }
                 {files.length == 0 && isFileDropped &&
-                    <Typography align={"center"} color="red">Неверный тип файла</Typography>
+                    <Typography align={"center"} color="red">Неверный тип файлов</Typography>
                 }
             </Grid>
 
             {errorsState.clicked && !errorsState.isOk &&
-                <Typography align={"center"} color="red">Возникла ошибка при обработке файла</Typography>
+                <Typography align={"center"} color="red">Возникла ошибка при обработке файлов</Typography>
             }
 
             {errorsState.clicked && errorsState.isOk && errorsState.errors.length >= 0 &&
