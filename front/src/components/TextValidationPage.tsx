@@ -1,7 +1,9 @@
 import React from 'react'
 import {DropZone} from "./DropZone";
 import Button from "@mui/material/Button";
-import {Divider, Grid, List, ListItem, ListItemText, Typography} from "@mui/material";
+import {Collapse, Divider, Grid, List, ListItem, ListItemButton, ListItemText, Typography} from "@mui/material";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
 const AcceptedFileType = {Doc: '.docx'};
 
@@ -15,13 +17,13 @@ type ErrorsData = {
 };
 
 interface IErrorsState {
-    // Array with error messages
-    errors: ErrorsData[];
+    // Array with error messages for each file
+    errors: ErrorsData[][];
 
     // Whether the check button was clicked
     clicked: boolean;
 
-    // True if errors occured while checking files
+    // True if errors occurred while checking files
     isOk: boolean;
 }
 
@@ -29,6 +31,7 @@ export const TextValidationPage = React.memo(() => {
     const [isDropActive, setIsDropActive] = React.useState(false)
     const [isFileDropped, setIsFileDropped] = React.useState(false)
     const [files, setFiles] = React.useState<File[]>([])
+    const [open, setOpen] = React.useState<Number[]>([])
 
     const [errorsState, setErrorsState] = React.useState<IErrorsState>({
         errors: [],
@@ -51,7 +54,7 @@ export const TextValidationPage = React.memo(() => {
             return
         }
         const formData = new FormData();
-        formData.append(files[0].name.toString(), files[0]);
+        Array.from(files).forEach(file => formData.append(file.name.toString(), file));
 
         await fetch("http://localhost:5098", {
             method: "POST",
@@ -65,7 +68,7 @@ export const TextValidationPage = React.memo(() => {
             })
             .then(
                 (response) => {
-                    response.json().then((data: ErrorsData[]) => {
+                    response.json().then((data: ErrorsData[][]) => {
                         setErrorsState({
                             errors: data,
                             isOk: true,
@@ -121,6 +124,60 @@ export const TextValidationPage = React.memo(() => {
         )
     }
 
+    const handleCollapse = (clickedIndex: Number) => {
+        if(open.includes(clickedIndex)){
+            const openCopy = open.filter((element) => {return element !== clickedIndex});
+            setOpen(openCopy);
+        } else {
+            const openCopy = [...open];
+            openCopy.push(clickedIndex);
+            setOpen(openCopy);
+        }
+    }
+
+    const renderList = (errorsData: ErrorsData[][]) => {
+        return (
+            <List
+                sx={{
+                    bgcolor: 'aliceblue',
+                    position: 'relative',
+                    // overflow: 'auto',
+                    // maxHeight: 300,
+                    // width: 700,
+                    padding: 2,
+                    margin: 3,
+                    marginTop: 0,
+                    word_break: 'break-all',
+                }}
+            >
+                {errorsData.map((errorsList, index) =>
+                    <div key={index}>
+                        {/*<List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper', alignItems:'flex-start'}}>*/}
+                        <ListItemButton onClick={() => handleCollapse(index)}>
+                            <ListItemText primary={files[index].name} secondary={(`Ошибок найдено: ${errorsList.length}`)}/>
+                            {(open.includes(index) && errorsList.length > 0) ? <ExpandLess/> : <ExpandMore/>}
+                        </ListItemButton>
+                        <Collapse in={open.includes(index)} timeout="auto" unmountOnExit>
+                            {/*<List component="div" disablePadding>
+                                    <ListItemButton sx={{pl: 4}}>
+                                        <ListItemText primary="Starred"/>
+                                    </ListItemButton>
+                                </List>*/}
+                            {errorsList.length > 0 && renderErrors(errorsList)}
+                        </Collapse>
+                        {/*</List>*/}
+                        {/*<ListItem alignItems="flex-start">
+                            <ListItemText
+                                primary={item.message}>
+                            </ListItemText>
+                        </ListItem>*/}
+                        <Divider variant="middle"/>
+                    </div>
+                )}
+            </List>
+        );
+    }
+
     return (
         <Grid container direction="column" sx={{alignItems: 'center'}}>
             <Grid container item direction="column" sx={{
@@ -137,9 +194,9 @@ export const TextValidationPage = React.memo(() => {
                                 style={{fontWeight: 600, margin: '15px', marginBottom: '0px'}}>
                         Перетащите файлы сюда
                     </Typography>
-                    <div>
+                    {/*<div>
                         <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
-                    </div>
+                    </div>*/}
                 </DropZone>
                 <Button
                     variant="contained"
@@ -169,12 +226,16 @@ export const TextValidationPage = React.memo(() => {
                 <Typography align={"center"} color="red">Возникла ошибка при обработке файлов</Typography>
             }
 
-            {errorsState.clicked && errorsState.isOk && errorsState.errors.length >= 0 &&
+            {errorsState.clicked && errorsState.isOk &&
                 <Grid item>
-                    <Typography sx={{mb: 2}} variant="h6" component="div" align="justify">
+                    {errorsState.errors.length > 0 && renderList(errorsState.errors)}
+                    {/*<List>
+
+                    </List>*/}
+                    {/*<Typography sx={{mb: 2}} variant="h6" component="div" align="justify">
                         Ошибок найдено: {errorsState.errors.length}
-                    </Typography>
-                    {errorsState.errors.length > 0 && renderErrors(errorsState.errors)}
+                    </Typography>*/}
+                    {/*{errorsState.errors.length > 0 && renderErrors(errorsState.errors)}*/}
                 </Grid>
             }
         </Grid>
