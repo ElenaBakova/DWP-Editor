@@ -30,9 +30,9 @@ app.UseStaticFiles();
 
 app.MapPost("/", async (HttpRequest request) =>
     {
-        var files = request.Form.Files.OfType<IFormFile[]?>().FirstOrDefault();
+        var files = request.Form.Files.OfType<IFormFile?>().ToList();
 
-        if (files == null || files.Length <= 0)
+        if (files == null || files.Count <= 0)
         {
             return Results.BadRequest();
         }
@@ -46,7 +46,7 @@ app.MapPost("/", async (HttpRequest request) =>
 
         return Results.Ok(result);
     })
-    .Accepts<IFormFile[]>("multipart/form-data")
+    .Accepts<IFormFile>("multipart/form-data")
     .Produces<List<List<Error>>>();
 
 app.UseCors(origins);
@@ -57,7 +57,7 @@ app.Run();
 /// </summary>
 /// <param name="file">File to process</param>
 /// <returns>List of errors in the file</returns>
-static async Task<List<Error>> GetErrorsAsync(IFormFile file)
+static async Task<List<Error>> GetErrorsAsync(IFormFile? file)
 {
     if (file == null || file.Length <= 0)
     {
