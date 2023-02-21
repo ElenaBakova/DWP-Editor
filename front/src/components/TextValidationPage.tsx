@@ -125,8 +125,10 @@ export const TextValidationPage = React.memo(() => {
     }
 
     const handleCollapse = (clickedIndex: Number) => {
-        if(open.includes(clickedIndex)){
-            const openCopy = open.filter((element) => {return element !== clickedIndex});
+        if (open.includes(clickedIndex)) {
+            const openCopy = open.filter((element) => {
+                return element !== clickedIndex
+            });
             setOpen(openCopy);
         } else {
             const openCopy = [...open];
@@ -141,9 +143,6 @@ export const TextValidationPage = React.memo(() => {
                 sx={{
                     bgcolor: 'aliceblue',
                     position: 'relative',
-                    // overflow: 'auto',
-                    // maxHeight: 300,
-                    // width: 700,
                     padding: 2,
                     margin: 3,
                     marginTop: 0,
@@ -152,25 +151,14 @@ export const TextValidationPage = React.memo(() => {
             >
                 {errorsData.map((errorsList, index) =>
                     <div key={index}>
-                        {/*<List sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper', alignItems:'flex-start'}}>*/}
                         <ListItemButton onClick={() => handleCollapse(index)}>
-                            <ListItemText primary={files[index].name} secondary={(`Ошибок найдено: ${errorsList.length}`)}/>
-                            {(open.includes(index) && errorsList.length > 0) ? <ExpandLess/> : <ExpandMore/>}
+                            <ListItemText primary={files[index].name}
+                                          secondary={(`Ошибок найдено: ${errorsList.length}`)}/>
+                            {errorsList.length > 0 && (open.includes(index) ? <ExpandLess/> : <ExpandMore/>)}
                         </ListItemButton>
                         <Collapse in={open.includes(index)} timeout="auto" unmountOnExit>
-                            {/*<List component="div" disablePadding>
-                                    <ListItemButton sx={{pl: 4}}>
-                                        <ListItemText primary="Starred"/>
-                                    </ListItemButton>
-                                </List>*/}
                             {errorsList.length > 0 && renderErrors(errorsList)}
                         </Collapse>
-                        {/*</List>*/}
-                        {/*<ListItem alignItems="flex-start">
-                            <ListItemText
-                                primary={item.message}>
-                            </ListItemText>
-                        </ListItem>*/}
                         <Divider variant="middle"/>
                     </div>
                 )}
@@ -194,9 +182,6 @@ export const TextValidationPage = React.memo(() => {
                                 style={{fontWeight: 600, margin: '15px', marginBottom: '0px'}}>
                         Перетащите файлы сюда
                     </Typography>
-                    {/*<div>
-                        <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
-                    </div>*/}
                 </DropZone>
                 <Button
                     variant="contained"
@@ -229,13 +214,6 @@ export const TextValidationPage = React.memo(() => {
             {errorsState.clicked && errorsState.isOk &&
                 <Grid item>
                     {errorsState.errors.length > 0 && renderList(errorsState.errors)}
-                    {/*<List>
-
-                    </List>*/}
-                    {/*<Typography sx={{mb: 2}} variant="h6" component="div" align="justify">
-                        Ошибок найдено: {errorsState.errors.length}
-                    </Typography>*/}
-                    {/*{errorsState.errors.length > 0 && renderErrors(errorsState.errors)}*/}
                 </Grid>
             }
         </Grid>
