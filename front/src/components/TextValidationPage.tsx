@@ -1,18 +1,29 @@
 import React from 'react'
 import {DropZone} from "./DropZone";
 import Button from "@mui/material/Button";
-import {Divider, Grid, List, ListItem, ListItemText, Typography} from "@mui/material";
+import {Collapse, Divider, Grid, List, ListItem, ListItemButton, ListItemText, Typography} from "@mui/material";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
 const AcceptedFileType = {Doc: '.docx'};
 
+// One error message
 type ErrorsData = {
+    // Error message to display
     message: string;
+
+    // Section in file
     section: string;
 };
 
 interface IErrorsState {
-    errors: ErrorsData[];
+    // Array with error messages for each file
+    errors: ErrorsData[][];
+
+    // Whether the check button was clicked
     clicked: boolean;
+
+    // True if errors occurred while checking files
     isOk: boolean;
 }
 
@@ -20,6 +31,7 @@ export const TextValidationPage = React.memo(() => {
     const [isDropActive, setIsDropActive] = React.useState(false)
     const [isFileDropped, setIsFileDropped] = React.useState(false)
     const [files, setFiles] = React.useState<File[]>([])
+    const [open, setOpen] = React.useState<Number[]>([])
 
     const [errorsState, setErrorsState] = React.useState<IErrorsState>({
         errors: [],
@@ -33,8 +45,8 @@ export const TextValidationPage = React.memo(() => {
     const acceptedFormats = AcceptedFileType.Doc;
 
     const handleFileSelect = (event: any) => {
-        const file = event?.target?.files?.[0];
-        file ? setFiles([file]) : setFiles(files);
+        const file = event?.target?.files;
+        file ? setFiles(file) : setFiles(files);
     }
 
     const handleClick = async () => {
@@ -42,7 +54,7 @@ export const TextValidationPage = React.memo(() => {
             return
         }
         const formData = new FormData();
-        formData.append(files[0].name.toString(), files[0]);
+        Array.from(files).forEach(file => formData.append(file.name.toString(), file));
 
         await fetch("http://localhost:5098", {
             method: "POST",
@@ -56,7 +68,7 @@ export const TextValidationPage = React.memo(() => {
             })
             .then(
                 (response) => {
-                    response.json().then((data: ErrorsData[]) => {
+                    response.json().then((data: ErrorsData[][]) => {
                         setErrorsState({
                             errors: data,
                             isOk: true,
@@ -112,6 +124,48 @@ export const TextValidationPage = React.memo(() => {
         )
     }
 
+    const handleCollapse = (clickedIndex: Number) => {
+        if (open.includes(clickedIndex)) {
+            const openCopy = open.filter((element) => {
+                return element !== clickedIndex
+            });
+            setOpen(openCopy);
+        } else {
+            const openCopy = [...open];
+            openCopy.push(clickedIndex);
+            setOpen(openCopy);
+        }
+    }
+
+    const renderList = (errorsData: ErrorsData[][]) => {
+        return (
+            <List
+                sx={{
+                    bgcolor: 'aliceblue',
+                    position: 'relative',
+                    padding: 2,
+                    margin: 3,
+                    marginTop: 0,
+                    word_break: 'break-all',
+                }}
+            >
+                {errorsData.map((errorsList, index) =>
+                    <div key={index}>
+                        <ListItemButton onClick={() => handleCollapse(index)}>
+                            <ListItemText primary={files[index].name}
+                                          secondary={(`Ошибок найдено: ${errorsList.length}`)}/>
+                            {errorsList.length > 0 && (open.includes(index) ? <ExpandLess/> : <ExpandMore/>)}
+                        </ListItemButton>
+                        <Collapse in={open.includes(index)} timeout="auto" unmountOnExit>
+                            {errorsList.length > 0 && renderErrors(errorsList)}
+                        </Collapse>
+                        <Divider variant="middle"/>
+                    </div>
+                )}
+            </List>
+        );
+    }
+
     return (
         <Grid container direction="column" sx={{alignItems: 'center'}}>
             <Grid container item direction="column" sx={{
@@ -126,11 +180,8 @@ export const TextValidationPage = React.memo(() => {
                 <DropZone onDragStateChange={onDragStateChange} onFilesDrop={onFilesDrop}>
                     <Typography align={"center"} variant={"h5"}
                                 style={{fontWeight: 600, margin: '15px', marginBottom: '0px'}}>
-                        Перетащите файл сюда
+                        Перетащите файлы сюда
                     </Typography>
-                    <div>
-                        <span>{files.length > 0 ? files[0].name : ""}</span>{' '}
-                    </div>
                 </DropZone>
                 <Button
                     variant="contained"
@@ -138,7 +189,8 @@ export const TextValidationPage = React.memo(() => {
                     style={{textTransform: 'none', fontSize: 'medium', margin: '15px'}}
                 >
                     или нажмите для загрузки
-                    <input ref={fileRef} hidden type="file" accept={acceptedFormats} onChange={handleFileSelect}/>
+                    <input ref={fileRef} type={"file"} accept={acceptedFormats} onChange={handleFileSelect} hidden
+                           multiple/>
                 </Button>
 
                 {files.length > 0 &&
@@ -151,20 +203,17 @@ export const TextValidationPage = React.memo(() => {
                     </Button>
                 }
                 {files.length == 0 && isFileDropped &&
-                    <Typography align={"center"} color="red">Неверный тип файла</Typography>
+                    <Typography align={"center"} color="red">Неверный тип файлов</Typography>
                 }
             </Grid>
 
             {errorsState.clicked && !errorsState.isOk &&
-                <Typography align={"center"} color="red">Возникла ошибка при обработке файла</Typography>
+                <Typography align={"center"} color="red">Возникла ошибка при обработке файлов</Typography>
             }
 
-            {errorsState.clicked && errorsState.isOk && errorsState.errors.length >= 0 &&
+            {errorsState.clicked && errorsState.isOk &&
                 <Grid item>
-                    <Typography sx={{mb: 2}} variant="h6" component="div" align="justify">
-                        Ошибок найдено: {errorsState.errors.length}
-                    </Typography>
-                    {errorsState.errors.length > 0 && renderErrors(errorsState.errors)}
+                    {errorsState.errors.length > 0 && renderList(errorsState.errors)}
                 </Grid>
             }
         </Grid>

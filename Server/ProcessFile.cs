@@ -23,6 +23,7 @@ public class ProcessFile
         var directory = scriptPath;
         const string script = "main.py";
 
+
         startInfo.WorkingDirectory = directory;
         startInfo.Arguments = script;
         startInfo.UseShellExecute = false;
@@ -74,11 +75,9 @@ public class ProcessFile
         foreach (var property in properties)
         {
             var value = property.GetValue(structure, null);
-            if (value == null)
-            {
-                var name = GetName(property.Name);
-                errorsList.Add(new Error($"Отсутствует раздел {name}", property.Name));
-            }
+            if (value != null) continue;
+            var name = GetName(property.Name);
+            errorsList.Add(new Error($"Отсутствует раздел {name}", property.Name));
         }
 
         return errorsList;
@@ -132,14 +131,16 @@ public class ProcessFile
         {
             if (splittedText.Length > 0 && splittedText[0] == "Санкт-Петербургский государственный университет")
             {
-                errorsList.Add(new Error("На титульной странице необходимо добавить строку \"Правительство Российской Федерации\"", propertyName));
+                errorsList.Add(new Error(
+                    "На титульной странице необходимо добавить строку \"Правительство Российской Федерации\"",
+                    propertyName));
             }
 
             errorsList.Add(new Error("Некорректно оформлена титульная страница", propertyName));
             return errorsList;
         }
 
-        for (int i = 0; i < splittedText.Length; i++)
+        for (var i = 0; i < splittedText.Length; i++)
         {
             var areEqual = Regex.IsMatch(splittedText[i], splittedPattern[i], RegexOptions.Compiled);
             if (!areEqual)
@@ -153,45 +154,22 @@ public class ProcessFile
 
     private static Error SwitchErrors(int index, string propertyName, string pattern)
     {
-        if (index < 3 || index == 6 || index == 10)
+        if (index is < 3 or 6 or 10)
         {
             return new Error($"На титульной странице в строке {index + 1} ожидается: {pattern}", propertyName);
         }
 
-        string message = "";
-        switch (index)
+        var message = index switch
         {
-            case 0:
-            case 1:
-            case 2:
-            case 6:
-            case 10:
-                message = $": {pattern}";
-                break;
-            case 3:
-                message = ": УЧЕБНОЙ ДИСЦИПЛИНЫ (ПРАКТИКИ)";
-                break;
-            case 4:
-                message = " наименование на русском языке";
-                break;
-            case 5:
-                message = " наименование на английском языке";
-                break;
-            case 7:
-                message = " список языков обучения через запятую";
-                break;
-            case 8:
-                message = ": Трудоемкость (границы трудоёмкости) в зачетных единицах: ";
-                break;
-            case 9:
-                message = ": Регистрационный номер рабочей программы: ";
-                break;
-            case 11:
-                message = " год";
-                break;
-            default:
-                break;
-        }
+            3 => ": УЧЕБНОЙ ДИСЦИПЛИНЫ (ПРАКТИКИ)",
+            4 => " наименование на русском языке",
+            5 => " наименование на английском языке",
+            7 => " список языков обучения через запятую",
+            8 => ": Трудоемкость (границы трудоёмкости) в зачетных единицах: ",
+            9 => ": Регистрационный номер рабочей программы: ",
+            11 => " год",
+            _ => ""
+        };
 
         return new Error($"На титульной странице в строке {index + 1} ожидается{message}", propertyName);
     }
@@ -235,7 +213,9 @@ public class ProcessFile
                 var areEqual = Regex.IsMatch(title, pattern, RegexOptions.Compiled);
                 if (!areEqual)
                 {
-                    errorsList.Add(new Error($"Некорректное наименование раздела {GetName(property.Name)}. Ожидается: {GetTitle(pattern)}", property.Name));
+                    errorsList.Add(new Error(
+                        $"Некорректное наименование раздела {GetName(property.Name)}. Ожидается: {GetTitle(pattern)}",
+                        property.Name));
                 }
             }
         }
