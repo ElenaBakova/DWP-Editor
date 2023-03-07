@@ -1,33 +1,34 @@
 import React from 'react';
 import {AppBar, Box, Toolbar, Typography, Container, Button, Divider} from "@mui/material";
+import {Link} from "react-router-dom";
+
 
 export function TopBar() {
     return (
         <Box sx={{flexGrow: 1}}>
             <AppBar position="static" color="primary" enableColorOnDark>
-                <Container maxWidth="xl" >
+                <Container maxWidth="xl">
                     <Toolbar disableGutters>
-                        <Typography variant="h6" component="div" sx={{display: {xs: "none", md: "flex"}, marginRight: 3}}>
+                        <Typography variant="h6" component="div"
+                                    sx={{display: {xs: "none", md: "flex"}, marginRight: 3}}>
                             Онлайн редактор РПД
                         </Typography>
 
-                        {/*<Box sx={{flexGrow: 1}}>*/}
                         <Button
-                            // onClick={handleCloseNavMenu}
-                            size="large"
-                            sx={{color: "white", display: "inline-block", alignSelf:"center"}}
-                        >
-                            {'Проверить'}
-                        </Button>
-                        <Divider orientation="vertical" variant="middle" flexItem />
-                        <Button
-                            // onClick={handleCloseNavMenu}
+                            href={"/"}
                             size="large"
                             sx={{color: "white", display: "inline-block"}}
                         >
-                            {'Редактировать'}
+                            Проверить
                         </Button>
-                        {/*</Box>*/}
+                        <Divider orientation="vertical" variant="middle" flexItem/>
+                        <Button
+                            href={"/edit"}
+                            size="large"
+                            sx={{color: "white", display: "inline-block"}}
+                        >
+                            Редактировать
+                        </Button>
                     </Toolbar>
                 </Container>
             </AppBar>

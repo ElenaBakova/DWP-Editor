@@ -49,6 +49,27 @@ app.MapPost("/", async (HttpRequest request) =>
     .Accepts<IFormFile>("multipart/form-data")
     .Produces<List<List<Error>>>();
 
+app.MapPost("/edit", async (HttpRequest request) =>
+{
+    var files = request.Form.Files.OfType<IFormFile?>().ToList();
+
+    if (files == null || files.Count <= 0)
+    {
+        return Results.BadRequest();
+    }
+
+    List<List<Error>> result = new();
+    foreach (var file in files)
+    {
+        var errors = await GetErrorsAsync(file);
+        result.Add(errors);
+    }
+
+    return Results.Ok(result);
+})
+    .Accepts<IFormFile>("multipart/form-data")
+    .Produces<List<List<Error>>>();
+
 app.UseCors(origins);
 app.Run();
 
