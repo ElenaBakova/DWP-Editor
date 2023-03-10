@@ -17,27 +17,33 @@ export const EditPage = React.memo(() => {
     const handleFileSelect = (event: any) => {
         const file = event?.target?.files?.[0];
         file ? setFiles([file]) : setFiles(files);
+        getContent().then(r => console.log(r));
     }
 
-    const handleClick = async () => {
+    const getContent = async () => {
         if (!files || files.length < 1) {
             return
         }
         const formData = new FormData();
-        Array.from(files).forEach(file => formData.append(file.name.toString(), file));
+        formData.append(files[0].name.toString(), files[0]);
 
-        await fetch("http://localhost:5098", {
+        await fetch("http://localhost:5098/edit", {
             method: "POST",
             body: formData,
         })
-            .then((response) => {
+           // .then((response) => response.json())
+            .then((data) => {
+                console.log("Success:");
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+            /*.then((response) => {
                 if (response.status >= 400 && response.status < 600) {
                     throw new Error("Bad response from server");
                 }
                 return response;
-            })
-            .then(
-            );
+            })*/
     }
 
     const onDragStateChange = (dragActive: boolean) => {
@@ -76,7 +82,7 @@ export const EditPage = React.memo(() => {
                     <input ref={fileRef} type={"file"} accept={acceptedFormats} onChange={handleFileSelect} hidden/>
                 </Button>
 
-                {files.length > 0 // &&
+                {/*{files.length > 0 &&
                     /*<Button
                         variant="contained"
                         component="label"
@@ -84,7 +90,7 @@ export const EditPage = React.memo(() => {
                         onClick={handleClick}>
                         Проверить
                     </Button>*/
-                //     Тут содержимое файла
+                    //     Тут содержимое файла}
                 }
                 {files.length == 0 && isFileDropped &&
                     <Typography align={"center"} color="red">Неверный тип файлов</Typography>
