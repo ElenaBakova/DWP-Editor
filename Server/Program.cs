@@ -1,4 +1,5 @@
-﻿using Server;
+﻿using Microsoft.AspNetCore.Http;
+using Server;
 using Server.Models;
 using System.Text.Json;
 
@@ -64,9 +65,10 @@ app.MapPost("/edit", (HttpRequest request) =>
     {
         return Results.BadRequest();
     }
-    var response = JsonSerializer.Serialize(content);
+    var response = JsonSerializer.Serialize(content.Result);
 
-    return Results.Ok(response);
+    //return Results.Ok(response);
+    return Results.Json(content.Result);
 })
     .Accepts<IFormFile>("multipart/form-data");
 

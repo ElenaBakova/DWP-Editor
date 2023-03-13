@@ -1,23 +1,36 @@
 import React from 'react'
-import {Grid, Typography} from "@mui/material";
+import {Grid, stepContentClasses, Typography} from "@mui/material";
 import {DropZone} from "./DropZone";
 import Button from "@mui/material/Button";
 
 const AcceptedFileType = {Doc: '.docx'};
 
+type Segment = {
+    title: string;
+    text:  string;
+}
+
 export const EditPage = React.memo(() => {
     const [isDropActive, setIsDropActive] = React.useState(false)
     const [isFileDropped, setIsFileDropped] = React.useState(false)
     const [files, setFiles] = React.useState<File[]>([])
+    const [content, setContent] = React.useState<Map<string, Segment>>()
+    //const content = new Map<string, Segment>()
 
     const fileRef = React.useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => {
+        getContent();
+    }, [files]);
 
     const acceptedFormats = AcceptedFileType.Doc;
 
     const handleFileSelect = (event: any) => {
-        const file = event?.target?.files?.[0];
-        file ? setFiles([file]) : setFiles(files);
-        getContent().then(r => console.log(r));
+        const file = event?.target?.files?.[0] as File;
+        if (file == undefined) {
+            return;
+        }
+        setFiles([file]);
     }
 
     const getContent = async () => {
@@ -31,19 +44,17 @@ export const EditPage = React.memo(() => {
             method: "POST",
             body: formData,
         })
-           // .then((response) => response.json())
-            .then((data) => {
-                console.log("Success:");
+            .then((response) => {
+                if (response.status >= 400 && response.status < 600) {
+                    throw new Error("Bad response from server");
+                }
+                response.json().then((data) => {
+                    setContent(JSON.parse(data));
+                console.log(data);});
             })
             .catch((error) => {
                 console.error("Error:", error);
             });
-            /*.then((response) => {
-                if (response.status >= 400 && response.status < 600) {
-                    throw new Error("Bad response from server");
-                }
-                return response;
-            })*/
     }
 
     const onDragStateChange = (dragActive: boolean) => {
@@ -82,16 +93,8 @@ export const EditPage = React.memo(() => {
                     <input ref={fileRef} type={"file"} accept={acceptedFormats} onChange={handleFileSelect} hidden/>
                 </Button>
 
-                {/*{files.length > 0 &&
-                    /*<Button
-                        variant="contained"
-                        component="label"
-                        style={{textTransform: 'none', fontSize: 'medium', margin: '15px', marginTop: '0px'}}
-                        onClick={handleClick}>
-                        Проверить
-                    </Button>*/
-                    //     Тут содержимое файла}
-                }
+                {files.length > 0 && content && <div>Hey</div>}
+
                 {files.length == 0 && isFileDropped &&
                     <Typography align={"center"} color="red">Неверный тип файлов</Typography>
                 }

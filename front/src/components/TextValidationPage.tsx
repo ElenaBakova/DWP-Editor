@@ -46,7 +46,9 @@ export const TextValidationPage = React.memo(() => {
 
     const handleFileSelect = (event: any) => {
         const file = event?.target?.files;
-        file ? setFiles(file) : setFiles(files);
+        if (file != undefined) {
+            setFiles(file);
+        }
     }
 
     const handleClick = async () => {
