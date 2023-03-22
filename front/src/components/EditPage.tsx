@@ -1,13 +1,24 @@
 import React from 'react'
-import {Grid, stepContentClasses, Typography} from "@mui/material";
+import {
+    Grid,
+    Typography,
+    Button,
+    Divider,
+    List,
+    InputLabel, ListItem, FormControl, FilledInput, OutlinedInput, TextField
+} from "@mui/material";
 import {DropZone} from "./DropZone";
-import Button from "@mui/material/Button";
 
 const AcceptedFileType = {Doc: '.docx'};
 
-type Segment = {
+export type Segment = {
     title: string;
-    text:  string;
+    text: string;
+}
+
+interface IError {
+    message: string;
+    isOk: boolean;
 }
 
 export const EditPage = React.memo(() => {
@@ -15,7 +26,7 @@ export const EditPage = React.memo(() => {
     const [isFileDropped, setIsFileDropped] = React.useState(false)
     const [files, setFiles] = React.useState<File[]>([])
     const [content, setContent] = React.useState<Map<string, Segment>>()
-    //const content = new Map<string, Segment>()
+    const [error, setError] = React.useState<IError>({message: "", isOk: true})
 
     const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -30,6 +41,7 @@ export const EditPage = React.memo(() => {
         if (file == undefined) {
             return;
         }
+        setError({message: "", isOk: true});
         setFiles([file]);
     }
 
@@ -46,14 +58,28 @@ export const EditPage = React.memo(() => {
         })
             .then((response) => {
                 if (response.status >= 400 && response.status < 600) {
-                    throw new Error("Bad response from server");
+                    setError({message: "Возникла ошибка при обработке файла", isOk: false})
+                    throw new Error("Возникла ошибка при обработке файла");
                 }
-                response.json().then((data) => {
-                    setContent(JSON.parse(data));
-                console.log(data);});
+                response.json().then((data: Object) => {
+                    if (data == null) {
+                        setError({message: "Файл пуст", isOk: false})
+                        throw new Error("Файл пуст");
+                    }
+                    let entries = Object.entries(data);
+                    if (entries.length < 1) {
+                        setError({message: "Возникла ошибка при обработке файла", isOk: false})
+                        throw new Error("Возникла ошибка при обработке файла");
+                    }
+
+                    let map = new Map<string, Segment>();
+                    entries.map(item => map.set(item[0], item[1]));
+                    setContent(map);
+                });
             })
-            .catch((error) => {
-                console.error("Error:", error);
+            .catch((e) => {
+                setError({message: e.message, isOk: false})
+                console.error("Error:", e);
             });
     }
 
@@ -62,8 +88,45 @@ export const EditPage = React.memo(() => {
     }
 
     const onFilesDrop = (file: File[]) => {
+        setError({message: "", isOk: true});
         setFiles(file)
         setIsFileDropped(true)
+    }
+
+    const renderContent = () => {
+        return (
+            <List
+                sx={{
+                    bgcolor: 'aliceblue',
+                    position: 'relative',
+                    padding: 2,
+                    margin: 3,
+                    marginTop: 0,
+                    width: '700px',
+                }}
+            >
+                {content && Array.from(content.entries()).map((item, index) =>
+                    <div key={index}>
+                        <ListItem>
+                            {/*<FormControl variant="filled">
+                                <InputLabel htmlFor="component-filled">{item[0]}</InputLabel>
+                                <FilledInput id="component-filled" defaultValue={item[1] ? item[1].title+item[1].text : ""} />
+                            </FormControl>*/}
+                            <TextField
+                                id="filled-textarea"
+                                label={item[0]}
+                                defaultValue={item[1] ? item[1].title+"\n"+item[1].text : ""}
+                                placeholder="Заголовок и содержание раздела"
+                                multiline
+                                fullWidth
+                                variant="filled"
+                            />
+                        </ListItem>
+                        {/*<Divider variant="middle"/>*/}
+                    </div>
+                )}
+            </List>
+        );
     }
 
     return (
@@ -72,7 +135,6 @@ export const EditPage = React.memo(() => {
                 m: 7,
                 mb: 3,
                 p: 3,
-                //width: 'fit-content',
                 width: '385px',
                 height: 'fit-content',
                 border: '2px dashed grey'
@@ -93,12 +155,26 @@ export const EditPage = React.memo(() => {
                     <input ref={fileRef} type={"file"} accept={acceptedFormats} onChange={handleFileSelect} hidden/>
                 </Button>
 
-                {files.length > 0 && content && <div>Hey</div>}
-
                 {files.length == 0 && isFileDropped &&
                     <Typography align={"center"} color="red">Неверный тип файлов</Typography>
                 }
             </Grid>
+
+            {!error.isOk &&
+                <span style={{color: 'red'}}>{error.message}</span>
+            }
+
+            {error.isOk && content && <Grid container item direction="column" sx={{
+                m: 7,
+                mb: 3,
+                mt: 0,
+                p: 3,
+                width: 'fit-content',
+                height: 'fit-content'
+            }}
+            >
+                {renderContent()}
+            </Grid>}
         </Grid>
     )
 })

@@ -55,12 +55,18 @@ app.MapPost("/edit", (HttpRequest request) =>
 {
     var file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
 
+    /*if (file == null || file.Length <= 0)
+    {
+
+        return Results.Json(null);
+    }*/
+
     if (file == null)
     {
         return Results.BadRequest();
     }
 
-    var content = GetContent(file);
+    var content = GetContentAsync(file);
     if (content == null)
     {
         return Results.BadRequest();
@@ -95,18 +101,28 @@ static async Task<List<Error>> GetErrorsAsync(IFormFile? file)
     return errors;
 }
 
-static async Task<Content?> GetContent(IFormFile? file)
+/// <summary>
+/// Takes content from given file
+/// </summary>
+/// <param name="file">File to process</param>
+/// <returns>Sections title and text of the file</returns>
+static async Task<Content?> GetContentAsync(IFormFile? file)
 {
     if (file == null || file.Length <= 0)
     {
-        return new Content();
+        return await DeserializeFileAsync<Content>("Models/sample.json");
     }
 
     SaveFileAsync(file);
     await ProcessFile.RunScriptAsync();
 
-    using var openStream = File.OpenRead("results_structure/content.json");
-    return await JsonSerializer.DeserializeAsync<Content>(openStream);
+    return await DeserializeFileAsync<Content>("results_structure/content.json");
+}
+
+static async Task<T?> DeserializeFileAsync<T>(string filePath)
+{
+    using var openStream = File.OpenRead(filePath);
+    return await JsonSerializer.DeserializeAsync<T>(openStream);
 }
 
 /// <summary>

@@ -23,7 +23,7 @@ interface IErrorsState {
     // Whether the check button was clicked
     clicked: boolean;
 
-    // True if errors occurred while checking files
+    // False if errors occurred while checking files
     isOk: boolean;
 }
 
@@ -36,7 +36,7 @@ export const TextValidationPage = React.memo(() => {
     const [errorsState, setErrorsState] = React.useState<IErrorsState>({
         errors: [],
         clicked: false,
-        isOk: false
+        isOk: true
     })
 
     const fileRef = React.useRef<HTMLInputElement>(null);
