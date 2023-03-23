@@ -1,12 +1,5 @@
 import React from 'react'
-import {
-    Grid,
-    Typography,
-    Button,
-    Divider,
-    List,
-    InputLabel, ListItem, FormControl, FilledInput, OutlinedInput, TextField
-} from "@mui/material";
+import {Button, Grid, List, ListItem, TextField, Typography} from "@mui/material";
 import {DropZone} from "./DropZone";
 
 const AcceptedFileType = {Doc: '.docx'};
@@ -26,13 +19,19 @@ export const EditPage = React.memo(() => {
     const [isFileDropped, setIsFileDropped] = React.useState(false)
     const [files, setFiles] = React.useState<File[]>([])
     const [content, setContent] = React.useState<Map<string, Segment>>()
-    const [error, setError] = React.useState<IError>({message: "", isOk: true})
+    const [error, setError] = React.useState<IError>({message: "", isOk: false})
 
     const fileRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
-        getContent();
+        getContent().then(r => r);
     }, [files]);
+
+    React.useEffect(() => {
+        if (content && error.isOk) {
+            renderContent();
+        }
+    }, [content, error]);
 
     const acceptedFormats = AcceptedFileType.Doc;
 
@@ -41,7 +40,6 @@ export const EditPage = React.memo(() => {
         if (file == undefined) {
             return;
         }
-        setError({message: "", isOk: true});
         setFiles([file]);
     }
 
@@ -62,10 +60,6 @@ export const EditPage = React.memo(() => {
                     throw new Error("Возникла ошибка при обработке файла");
                 }
                 response.json().then((data: Object) => {
-                    if (data == null) {
-                        setError({message: "Файл пуст", isOk: false})
-                        throw new Error("Файл пуст");
-                    }
                     let entries = Object.entries(data);
                     if (entries.length < 1) {
                         setError({message: "Возникла ошибка при обработке файла", isOk: false})
@@ -74,11 +68,13 @@ export const EditPage = React.memo(() => {
 
                     let map = new Map<string, Segment>();
                     entries.map(item => map.set(item[0], item[1]));
+                    setError({message: "", isOk: true});
                     setContent(map);
                 });
             })
             .catch((e) => {
                 setError({message: e.message, isOk: false})
+                setContent(undefined)
                 console.error("Error:", e);
             });
     }
@@ -88,7 +84,6 @@ export const EditPage = React.memo(() => {
     }
 
     const onFilesDrop = (file: File[]) => {
-        setError({message: "", isOk: true});
         setFiles(file)
         setIsFileDropped(true)
     }
@@ -105,24 +100,20 @@ export const EditPage = React.memo(() => {
                     width: '700px',
                 }}
             >
-                {content && Array.from(content.entries()).map((item, index) =>
+                {content && (Array.from(content.entries())).map((item, index) =>
                     <div key={index}>
                         <ListItem>
-                            {/*<FormControl variant="filled">
-                                <InputLabel htmlFor="component-filled">{item[0]}</InputLabel>
-                                <FilledInput id="component-filled" defaultValue={item[1] ? item[1].title+item[1].text : ""} />
-                            </FormControl>*/}
                             <TextField
                                 id="filled-textarea"
                                 label={item[0]}
-                                defaultValue={item[1] ? item[1].title+"\n"+item[1].text : ""}
+                                key={item[1] ? item[1].title + "\n" + item[1].text : ""}
+                                defaultValue={item[1] ? item[1].title + "\n" + item[1].text : ""}
                                 placeholder="Заголовок и содержание раздела"
                                 multiline
                                 fullWidth
                                 variant="filled"
                             />
                         </ListItem>
-                        {/*<Divider variant="middle"/>*/}
                     </div>
                 )}
             </List>
@@ -164,17 +155,11 @@ export const EditPage = React.memo(() => {
                 <span style={{color: 'red'}}>{error.message}</span>
             }
 
-            {error.isOk && content && <Grid container item direction="column" sx={{
-                m: 7,
-                mb: 3,
-                mt: 0,
-                p: 3,
-                width: 'fit-content',
-                height: 'fit-content'
-            }}
-            >
-                {renderContent()}
-            </Grid>}
+            {error.isOk && files.length > 0 &&
+                <Grid item>
+                    {renderContent()}
+                </Grid>
+            }
         </Grid>
     )
 })

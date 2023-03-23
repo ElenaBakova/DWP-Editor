@@ -1,9 +1,7 @@
 import React from 'react'
+import {ExpandLess, ExpandMore} from "@mui/icons-material";
+import {Button, Collapse, Divider, Grid, List, ListItem, ListItemButton, ListItemText, Typography} from "@mui/material";
 import {DropZone} from "./DropZone";
-import Button from "@mui/material/Button";
-import {Collapse, Divider, Grid, List, ListItem, ListItemButton, ListItemText, Typography} from "@mui/material";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 
 const AcceptedFileType = {Doc: '.docx'};
 

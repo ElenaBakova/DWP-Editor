@@ -1,9 +1,9 @@
 import React from 'react';
+import {Grid} from "@mui/material";
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import {TopBar} from "./components/TopBar";
 import {TextValidationPage} from "./components/TextValidationPage";
 import {EditPage} from "./components/EditPage";
-import {Grid} from "@mui/material";
-import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 
 function App() {
     return (
@@ -12,9 +12,6 @@ function App() {
                 <TopBar/>
             </Grid>
 
-            {/*<Grid item>
-                <TextValidationPage/>
-            </Grid>*/}
             <Router>
                 <Routes>
                     <Route path="/edit" element={<EditPage/>}/>

@@ -110,7 +110,7 @@ static async Task<Content?> GetContentAsync(IFormFile? file)
 {
     if (file == null || file.Length <= 0)
     {
-        return await DeserializeFileAsync<Content>("Models/sample.json");
+        return await ProcessFile.GetSampleAsContent();
     }
 
     SaveFileAsync(file);

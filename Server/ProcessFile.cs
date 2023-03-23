@@ -48,6 +48,38 @@ public class ProcessFile
         return errorsList;
     }
 
+    /// <summary>
+    /// Returns sample.json without regex
+    /// </summary>
+    public static async Task<Content> GetSampleAsContent()
+    {
+        var sample = await DeserializeFileAsync<Content>("Models/sample.json");
+
+        var properties = sample.GetType().GetProperties();
+        foreach (var property in properties)
+        {
+            var sampleValue = property.GetValue(sample, null);
+            if (sampleValue == null)
+            {
+                continue;
+            }
+
+            if (property.Name == "TitlePage")
+            {
+                var title = "Правительство Российской Федерации\r\nСанкт-Петербургский государственный университет\r\nР А Б О Ч А Я   П Р О Г Р А М М А\r\nУЧЕБНОЙ ДИСЦИПЛИНЫ\r\n\r\n\r\nЯзык(и) обучения\r\n\r\nТрудоемкость в зачетных единицах: \r\nРегистрационный номер рабочей программы: \r\nСанкт-Петербург\r\n202";
+                sampleValue?.GetType().GetProperty("text")?.SetValue(sampleValue, title);
+            }
+            else
+            {
+                var title =
+                    (string)(sampleValue?.GetType().GetProperty("title")?.GetValue(sampleValue, null) ?? "");
+                var newTitle = GetTitle(title);
+                sampleValue?.GetType().GetProperty("title")?.SetValue(sampleValue, newTitle);
+            }
+        }
+        return sample;
+    }
+
     private static async Task<List<Error>> GetContentErrorsAsync()
     {
         List<Error> errorsList = new();
