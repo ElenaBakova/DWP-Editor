@@ -156,9 +156,18 @@ export const EditPage = React.memo(() => {
             }
 
             {error.isOk && files.length > 0 &&
-                <Grid item>
-                    {renderContent()}
-                </Grid>
+                <div>
+                    <Grid item>
+                        {renderContent()}
+                    </Grid>
+                    <Button
+                        variant="contained"
+                        component="label"
+                        style={{textTransform: 'none', fontSize: 'medium', margin: '0px 15px 50px 55px'}}
+                    >
+                        Сохранить
+                    </Button>
+                </div>
             }
         </Grid>
     )
