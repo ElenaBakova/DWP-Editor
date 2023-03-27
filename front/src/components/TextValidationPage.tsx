@@ -47,6 +47,11 @@ export const TextValidationPage = React.memo(() => {
         if (file != undefined) {
             setFiles(file);
         }
+        setErrorsState({
+            errors: [],
+            isOk: false,
+            clicked: false
+        });
     }
 
     const handleClick = async () => {
@@ -91,6 +96,11 @@ export const TextValidationPage = React.memo(() => {
     }
 
     const onFilesDrop = (file: File[]) => {
+        setErrorsState({
+            errors: [],
+            clicked: false,
+            isOk: false
+        })
         setFiles(file)
         setIsFileDropped(true)
     }
