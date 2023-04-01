@@ -1,4 +1,6 @@
 import React from 'react'
+import {Document, HeadingLevel, Packer, Paragraph} from "docx";
+import {saveAs} from "file-saver";
 import {Button, Grid, List, ListItem, TextField, Typography} from "@mui/material";
 import {DropZone} from "./DropZone";
 
@@ -41,6 +43,46 @@ export const EditPage = React.memo(() => {
             return;
         }
         setFiles([file]);
+    }
+
+    const handleSaveClick = () => {
+        if (content == undefined) {
+            return;
+        }
+
+        const document = new Document({
+            sections: [
+                {
+                    children: [
+                        ...Array.from(content.entries()).map((item, index) => {
+                            const arr: Paragraph[] = [];
+                            if (index == 0 && item) {
+                                arr.push(new Paragraph({
+                                    text: item[1].text
+                                }));
+                            } else if (item) {
+                                arr.push(new Paragraph({
+                                    text: item[1] ? item[0] + " " + item[1].title : item[0],
+                                    heading: HeadingLevel.HEADING_1
+                                }));
+                                arr.push(new Paragraph({
+                                    text: item[1] ? item[1].text : ""
+                                }));
+                            }
+
+                            return arr
+                        })
+                            .reduce((prev, curr) => prev.concat(curr), []),
+                    ]
+
+                }
+            ]
+        });
+
+        Packer.toBlob(document).then(blob => {
+            saveAs(blob, `${files[0].name}`);
+            console.log("Document created successfully");
+        });
     }
 
     const getContent = async () => {
@@ -164,6 +206,7 @@ export const EditPage = React.memo(() => {
                         variant="contained"
                         component="label"
                         style={{textTransform: 'none', fontSize: 'medium', margin: '0px 15px 50px 55px'}}
+                        onClick={handleSaveClick}
                     >
                         Сохранить
                     </Button>

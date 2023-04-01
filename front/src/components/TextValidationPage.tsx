@@ -208,7 +208,8 @@ export const TextValidationPage = React.memo(() => {
                         variant="contained"
                         component="label"
                         style={{textTransform: 'none', fontSize: 'medium', margin: '15px', marginTop: '0px'}}
-                        onClick={handleClick}>
+                        onClick={handleClick}
+                    >
                         Проверить
                     </Button>
                 }
