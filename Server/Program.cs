@@ -55,12 +55,6 @@ app.MapPost("/edit", (HttpRequest request) =>
 {
     var file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
 
-    /*if (file == null || file.Length <= 0)
-    {
-
-        return Results.Json(null);
-    }*/
-
     if (file == null)
     {
         return Results.BadRequest();
@@ -73,7 +67,6 @@ app.MapPost("/edit", (HttpRequest request) =>
     }
     var response = JsonSerializer.Serialize(content.Result);
 
-    //return Results.Ok(response);
     return Results.Json(content.Result);
 })
     .Accepts<IFormFile>("multipart/form-data");
