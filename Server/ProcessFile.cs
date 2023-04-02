@@ -124,7 +124,11 @@ public class ProcessFile
         }
         else if (propertyName[0] == '_')
         {
-            name = propertyName[1] + "." + propertyName[2];
+            name = propertyName[1].ToString();
+            if (propertyName.Length > 2)
+            {
+                name += "." + propertyName[2];
+            }
             if (propertyName.Length > 3)
             {
                 name += "." + propertyName[3];
@@ -221,10 +225,10 @@ public class ProcessFile
                 continue;
             }
 
+            var text = (string)(contentValue.GetType().GetProperty("text")?.GetValue(contentValue, null) ?? "");
+
             if (property.Name == "TitlePage")
             {
-                var text =
-                    (string) (contentValue.GetType().GetProperty("text")?.GetValue(contentValue, null) ?? "");
                 var pattern =
                     (string) (sampleValue?.GetType().GetProperty("text")?.GetValue(sampleValue, null) ?? "");
                 if (text == "")
@@ -237,6 +241,11 @@ public class ProcessFile
             }
             else
             {
+                if (text != "" && (text.Contains("студент") || text.Contains("Студент")))
+                {
+                    errorsList.Add(new Error($"В разделе {GetName(property.Name)} содержится запрещенное слово 'студент'", property.Name));
+                }
+
                 var title =
                     (string) (contentValue?.GetType().GetProperty("title")?.GetValue(contentValue, null) ?? "");
                 var pattern =
