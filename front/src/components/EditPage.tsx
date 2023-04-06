@@ -130,6 +130,29 @@ export const EditPage = React.memo(() => {
         setIsFileDropped(true)
     }
 
+    const handleTitleChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, key: string) => {
+        const newTitle = event.target.value;
+        const newContent = new Map(content);
+        const segment = newContent.get(key);
+        if (segment) {
+            segment.title = newTitle;
+            newContent.set(key, segment);
+            setContent(newContent);
+        }
+    };
+
+    const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, key: string) => {
+        const newText = event.target.value;
+        const newContent = new Map(content);
+        const segment = newContent.get(key);
+        if (segment) {
+            segment.text = newText;
+            newContent.set(key, segment);
+            setContent(newContent);
+        }
+    };
+
+
     const renderContent = () => {
         return (
             <List
@@ -142,18 +165,27 @@ export const EditPage = React.memo(() => {
                     width: '700px',
                 }}
             >
-                {content && (Array.from(content.entries())).map((item, index) =>
+                {content && (Array.from(content.entries())).map(([key, segment], index) =>
                     <div key={index}>
+                        {index != 0 && <ListItem>
+                            <TextField
+                                label={key}
+                                variant="filled"
+                                fullWidth
+                                placeholder="Заголовок раздела"
+                                value={segment?.title}
+                                onChange={(event) => handleTitleChange(event, key)}
+                            />
+                        </ListItem>}
                         <ListItem>
                             <TextField
-                                id="filled-textarea"
-                                label={item[0]}
-                                key={item[1] ? item[1].title + "\n" + item[1].text : ""}
-                                defaultValue={item[1] ? item[1].title + "\n" + item[1].text : ""}
-                                placeholder="Заголовок и содержание раздела"
+                                label=""
+                                variant="filled"
                                 multiline
                                 fullWidth
-                                variant="filled"
+                                placeholder="Cодержание раздела"
+                                value={segment?.text}
+                                onChange={(event) => handleTextChange(event, key)}
                             />
                         </ListItem>
                     </div>
