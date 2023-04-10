@@ -1,8 +1,9 @@
 import React from 'react'
-import {Document, HeadingLevel, Packer, Paragraph} from "docx";
+import {Document, HeadingLevel, Packer, PageBreak, Paragraph, TextRun} from "docx";
 import {saveAs} from "file-saver";
 import {Button, Grid, List, ListItem, TextField, Typography} from "@mui/material";
 import {DropZone} from "./DropZone";
+import { composeDocument } from '../Utils/DocxUtil';
 
 const AcceptedFileType = {Doc: '.docx'};
 
@@ -50,7 +51,8 @@ export const EditPage = React.memo(() => {
             return;
         }
 
-        const document = new Document({
+        const document = composeDocument(content);
+        /*new Document({
             sections: [
                 {
                     children: [
@@ -58,8 +60,15 @@ export const EditPage = React.memo(() => {
                             const arr: Paragraph[] = [];
                             if (index == 0 && item) {
                                 arr.push(new Paragraph({
-                                    text: item[1].text
-                                }));
+                                    children: [
+                                        new TextRun({
+                                            text: item[1].text,
+                                            break: 1,
+                                        }),
+                                        new PageBreak()
+                                    ],
+                                    // text: item[1].text
+                                }))
                             } else if (item) {
                                 arr.push(new Paragraph({
                                     text: item[1] ? item[0] + " " + item[1].title : item[0],
@@ -77,7 +86,7 @@ export const EditPage = React.memo(() => {
 
                 }
             ]
-        });
+        });*/
 
         Packer.toBlob(document).then(blob => {
             saveAs(blob, `${files[0].name}`);
