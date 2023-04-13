@@ -15,15 +15,52 @@ const getTextRun = (text: string) => {
         return new TextRun({
             text: text,
             bold: true,
-            break: 1,
+            break: 2,
         })
     }
 
-    if (text.includes("Санкт-Петербургский государственный университет")) {
+    if (text.includes("Р А Б О Ч А Я   П Р О Г Р А М М А")) {
+        return new TextRun({
+            text: text,
+            bold: true,
+            break: 7,
+        })
+    }
+
+    if (text.includes("УЧЕБНОЙ ДИСЦИПЛИНЫ")) {
         return new TextRun({
             text: text,
             bold: true,
             break: 1,
+        })
+    }
+
+    if (text.includes("Язык(и) обучения")) {
+        return new TextRun({
+            text: text,
+            bold: true,
+            break: 4,
+        })
+    }
+
+    if (text.includes("Санкт-Петербург")) {
+        return new TextRun({
+            text: text,
+            break: 22,
+        })
+    }
+
+    if (text.includes("Трудоемкость")) {
+        return new TextRun({
+            text: text,
+            break: 3,
+        })
+    }
+
+    if (text.includes("Регистрационный номер")) {
+        return new TextRun({
+            text: text,
+            break: 2,
         })
     }
 
@@ -34,11 +71,10 @@ const getTextRun = (text: string) => {
 }
 
 const createTitlePage = (text: string) => {
-    var splitted = text.split('\n');
     return new Paragraph({
-        alignment: AlignmentType.CENTER,
+        style: "title",
         children: [
-            ...splitted.map(item => {
+            ...text.split('\n').map(item => {
                 const runs: TextRun[] = [];
                 runs.push(getTextRun(item));
                 return runs
@@ -71,11 +107,12 @@ const switchHeading = (section: string) => {
 }
 
 const getRunWithBreaks = (text: string) => {
-    const splitted = text.split(/\r?\n/);
-
-    return splitted.map(item => {
+    return text.split('\n').map(item => {
         const runs: TextRun[] = [];
-        runs.push(new TextRun({text: item, break: 1}));
+        runs.push(new TextRun({
+            text: item,
+            break: item == "" ? 0 : 1,
+        }));
         return runs
     })
         .reduce((prev, curr) => prev.concat(curr), []);
@@ -125,116 +162,50 @@ export function composeDocument(content: Map<string, Segment>) {
                         alignment: AlignmentType.LEFT,
                     },
                 },
-                /*listParagraph: {
-                    run: {
-                        color: "#FF0000",
-                    },
-                },*/
             },
             paragraphStyles: [
-                /*{
-                    id: "aside",
-                    name: "Aside",
+                {
+                    id: "title",
+                    name: "Title Page",
                     basedOn: "Normal",
-                    next: "Normal",
-                    run: {
-                        color: "999999",
-                        italics: true,
-                    },
                     paragraph: {
-                        /!*indent: {
-                            left: convertInchesToTwip(0.5),
-                        },*!/
-                        spacing: {
-                            line: 276,
-                        },
+                        alignment: AlignmentType.CENTER,
                     },
-                },*/
+                    run: {
+                        characterSpacing: 20,
+                        size: 24,
+                    },
+                },
                 {
                     id: "common",
                     name: "Common Style",
                     basedOn: "Normal",
-                    // quickFormat: true,
-                    paragraph: {
-                        // alignment: AlignmentType.JUSTIFIED,
-                        spacing: {line: 276, before: 20 * 72 * 0.1, after: 20 * 72 * 0.05},
-                    },
                     run: {
                         size: 24,
                     },
                 },
-                /*{
-                    id: "strikeUnderline",
-                    name: "Strike Underline",
-                    basedOn: "Normal",
-                    quickFormat: true,
-                    run: {
-                        strike: true,
-                        underline: {
-                            type: UnderlineType.SINGLE,
-                        },
-                    },
-                },*/
             ],
-            /*characterStyles: [
-                {
-                    id: "strikeUnderlineCharacter",
-                    name: "Strike Underline",
-                    basedOn: "Normal",
-                    quickFormat: true,
-                    run: {
-                        strike: true,
-                        underline: {
-                            type: UnderlineType.SINGLE,
-                        },
-                    },
-                },
-            ],*/
         },
-        /*numbering: {
-            config: [
-                {
-                    reference: "my-crazy-numbering",
-                    levels: [
-                        {
-                            level: 0,
-                            format: LevelFormat.LOWER_LETTER,
-                            text: "%1)",
-                            alignment: AlignmentType.LEFT,
-                        },
-                    ],
-                },
-            ],
-        },*/
         sections: [
             {
                 children: [
                     ...Array.from(content.entries()).map((item, index) => {
                         const array: Paragraph[] = [];
+
                         if (index == 0 && item) {
                             array.push(createTitlePage(item[1].text));
                         } else if (item) {
                             const title = item[1] ? item[0] + " " + item[1].title : item[0];
                             const text = item[1] ? item[1].text : "";
+
                             array.push(new Paragraph({
                                 heading: switchHeading(item[0]),
-                                keepLines: true,
-                                children: [
-                                    /*new TextRun({
-                                        text: item[1] ? item[0] + " " + item[1].title : item[0],
-                                        break: 1,
-                                    })*/
-                                    /*{const temp = item[1] ? item[0] + " " + item[1].title : item[0]}
-                                    ...(item[1] ? getRunWithBreaks(item[0] + " " + item[1].title) : getRunWithBreaks(item[0]))
-                                        .reduce((prev, curr) => prev.concat(curr), []),*/
-                                    ...getRunWithBreaks(title)
-                                ],
+                                text: title,
                             }));
+
                             array.push(new Paragraph({
                                 style: "common",
-                                // ...(item[1] ? getRunWithBreaks(item[1].text) : new TextRun({})),
-                                // text: item[1] ? item[1].text : ""
-                                keepLines: true,
+                                // keepLines: true,
                                 children: [
                                     ...getRunWithBreaks(text),
                                 ],
