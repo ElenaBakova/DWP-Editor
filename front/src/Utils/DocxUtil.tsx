@@ -46,7 +46,7 @@ const getTextRun = (text: string) => {
     if (text.includes("Санкт-Петербург")) {
         return new TextRun({
             text: text,
-            break: 22,
+            break: 10,
         })
     }
 
@@ -70,17 +70,20 @@ const getTextRun = (text: string) => {
     })
 }
 
-const createTitlePage = (text: string) => {
+const alignmentType = (text: string) => {
+    if (text.includes("Трудоемкость") || text.includes("Регистрационный номер")) {
+        return AlignmentType.RIGHT
+    }
+
+    return AlignmentType.CENTER
+}
+
+const titlePageParagraph = (text: string) => {
     return new Paragraph({
         style: "title",
+        alignment: alignmentType(text),
         children: [
-            ...text.split('\n').map(item => {
-                const runs: TextRun[] = [];
-                runs.push(getTextRun(item));
-                return runs
-            })
-                .reduce((prev, curr) => prev.concat(curr), []),
-            new PageBreak()
+            getTextRun(text),
         ],
     })
 }
@@ -168,9 +171,6 @@ export function composeDocument(content: Map<string, Segment>) {
                     id: "title",
                     name: "Title Page",
                     basedOn: "Normal",
-                    paragraph: {
-                        alignment: AlignmentType.CENTER,
-                    },
                     run: {
                         characterSpacing: 20,
                         size: 24,
@@ -193,7 +193,10 @@ export function composeDocument(content: Map<string, Segment>) {
                         const array: Paragraph[] = [];
 
                         if (index == 0 && item) {
-                            array.push(createTitlePage(item[1].text));
+                            item[1].text.split('\n').map(item => {
+                                array.push(titlePageParagraph(item))
+                            });
+                            array[array.length - 1].addChildElement(new PageBreak());
                         } else if (item) {
                             const title = item[1] ? item[0] + " " + item[1].title : item[0];
                             const text = item[1] ? item[1].text : "";

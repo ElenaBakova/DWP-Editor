@@ -153,6 +153,7 @@ export const TextValidationPage = React.memo(() => {
                 sx={{
                     bgcolor: 'aliceblue',
                     position: 'relative',
+                    minWidth: 500,
                     padding: 2,
                     margin: 3,
                     marginTop: 0,
