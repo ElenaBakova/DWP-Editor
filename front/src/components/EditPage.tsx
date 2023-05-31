@@ -1,9 +1,11 @@
 import React from 'react'
 import {Document, HeadingLevel, Packer, PageBreak, Paragraph, TextRun} from "docx";
 import {saveAs} from "file-saver";
-import {Button, Grid, List, ListItem, TextField, Typography} from "@mui/material";
+import {Button, Grid, List, ListItem, TextField, TextFieldProps, Typography} from "@mui/material";
 import {DropZone} from "./DropZone";
-import { composeDocument } from '../Utils/DocxUtil';
+import {composeDocument} from '../Utils/DocxUtil';
+import ReactMarkdown from "react-markdown";
+import MuiMarkdown from 'mui-markdown';
 
 const AcceptedFileType = {Doc: '.docx'};
 
@@ -23,6 +25,7 @@ export const EditPage = React.memo(() => {
     const [files, setFiles] = React.useState<File[]>([])
     const [content, setContent] = React.useState<Map<string, Segment>>()
     const [error, setError] = React.useState<IError>({message: "", isOk: false})
+    const [markdown, setMarkdown] = React.useState('')
 
     const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -52,41 +55,6 @@ export const EditPage = React.memo(() => {
         }
 
         const document = composeDocument(content);
-        /*new Document({
-            sections: [
-                {
-                    children: [
-                        ...Array.from(content.entries()).map((item, index) => {
-                            const arr: Paragraph[] = [];
-                            if (index == 0 && item) {
-                                arr.push(new Paragraph({
-                                    children: [
-                                        new TextRun({
-                                            text: item[1].text,
-                                            break: 1,
-                                        }),
-                                        new PageBreak()
-                                    ],
-                                    // text: item[1].text
-                                }))
-                            } else if (item) {
-                                arr.push(new Paragraph({
-                                    text: item[1] ? item[0] + " " + item[1].title : item[0],
-                                    heading: HeadingLevel.HEADING_1
-                                }));
-                                arr.push(new Paragraph({
-                                    text: item[1] ? item[1].text : ""
-                                }));
-                            }
-
-                            return arr
-                        })
-                            .reduce((prev, curr) => prev.concat(curr), []),
-                    ]
-
-                }
-            ]
-        });*/
 
         Packer.toBlob(document).then(blob => {
             saveAs(blob, `${files[0].name}`);
@@ -178,12 +146,16 @@ export const EditPage = React.memo(() => {
                     <div key={index}>
                         {index != 0 && <ListItem>
                             <TextField
+                                id={key}
                                 label={key}
                                 variant="filled"
                                 fullWidth
-                                placeholder="Заголовок раздела"
+                                placeholder="Заголовок раздела"`
                                 value={segment?.title}
                                 onChange={(event) => handleTitleChange(event, key)}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
                             />
                         </ListItem>}
                         <ListItem>
