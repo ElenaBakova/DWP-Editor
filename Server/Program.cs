@@ -1,5 +1,7 @@
-﻿using Server;
+﻿using Microsoft.AspNetCore.Http;
+using Server;
 using Server.Models;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder();
 
@@ -49,6 +51,26 @@ app.MapPost("/", async (HttpRequest request) =>
     .Accepts<IFormFile>("multipart/form-data")
     .Produces<List<List<Error>>>();
 
+app.MapPost("/edit", (HttpRequest request) =>
+{
+    var file = request.Form.Files.OfType<IFormFile?>().FirstOrDefault();
+
+    if (file == null)
+    {
+        return Results.BadRequest();
+    }
+
+    var content = GetContentAsync(file);
+    if (content == null)
+    {
+        return Results.BadRequest();
+    }
+    var response = JsonSerializer.Serialize(content.Result);
+
+    return Results.Json(content.Result);
+})
+    .Accepts<IFormFile>("multipart/form-data");
+
 app.UseCors(origins);
 app.Run();
 
@@ -64,6 +86,45 @@ static async Task<List<Error>> GetErrorsAsync(IFormFile? file)
         return new List<Error> { new("Файл пуст", "") };
     }
 
+    SaveFileAsync(file);
+
+    await ProcessFile.RunScriptAsync();
+    var errors = await ProcessFile.ValidateDocumentAsync();
+
+    return errors;
+}
+
+/// <summary>
+/// Takes content from given file
+/// </summary>
+/// <param name="file">File to process</param>
+/// <returns>Sections title and text of the file</returns>
+static async Task<Content?> GetContentAsync(IFormFile? file)
+{
+    if (file == null || file.Length <= 0)
+    {
+        return await ProcessFile.GetSampleAsContent();
+    }
+
+    SaveFileAsync(file);
+    await ProcessFile.RunScriptAsync();
+
+    return await DeserializeFileAsync<Content>("results_structure/content.json");
+}
+
+static async Task<T?> DeserializeFileAsync<T>(string filePath)
+{
+    using var openStream = File.OpenRead(filePath);
+    return await JsonSerializer.DeserializeAsync<T>(openStream);
+}
+
+/// <summary>
+/// Processes given file
+/// </summary>
+/// <param name="file">File to process</param>
+/// <returns>List of errors in the file</returns>
+static async void SaveFileAsync(IFormFile file)
+{
     var dirPath = Path.Combine(Environment.CurrentDirectory, "Files");
     if (Directory.Exists(dirPath))
     {
@@ -77,9 +138,4 @@ static async Task<List<Error>> GetErrorsAsync(IFormFile? file)
     {
         await file.CopyToAsync(stream);
     }
-
-    await ProcessFile.RunScriptAsync();
-    var errors = await ProcessFile.ValidateDocumentAsync();
-
-    return errors;
 }

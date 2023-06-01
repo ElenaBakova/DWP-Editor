@@ -1,9 +1,7 @@
 import React from 'react'
+import {ExpandLess, ExpandMore} from "@mui/icons-material";
+import {Button, Collapse, Divider, Grid, List, ListItem, ListItemButton, ListItemText, Typography} from "@mui/material";
 import {DropZone} from "./DropZone";
-import Button from "@mui/material/Button";
-import {Collapse, Divider, Grid, List, ListItem, ListItemButton, ListItemText, Typography} from "@mui/material";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 
 const AcceptedFileType = {Doc: '.docx'};
 
@@ -23,7 +21,7 @@ interface IErrorsState {
     // Whether the check button was clicked
     clicked: boolean;
 
-    // True if errors occurred while checking files
+    // False if errors occurred while checking files
     isOk: boolean;
 }
 
@@ -36,7 +34,7 @@ export const TextValidationPage = React.memo(() => {
     const [errorsState, setErrorsState] = React.useState<IErrorsState>({
         errors: [],
         clicked: false,
-        isOk: false
+        isOk: true
     })
 
     const fileRef = React.useRef<HTMLInputElement>(null);
@@ -46,7 +44,9 @@ export const TextValidationPage = React.memo(() => {
 
     const handleFileSelect = (event: any) => {
         const file = event?.target?.files;
-        file ? setFiles(file) : setFiles(files);
+        if (file != undefined) {
+            setFiles(file);
+        }
         setErrorsState({
             errors: [],
             isOk: false,
@@ -153,6 +153,7 @@ export const TextValidationPage = React.memo(() => {
                 sx={{
                     bgcolor: 'aliceblue',
                     position: 'relative',
+                    minWidth: 500,
                     padding: 2,
                     margin: 3,
                     marginTop: 0,
@@ -208,7 +209,8 @@ export const TextValidationPage = React.memo(() => {
                         variant="contained"
                         component="label"
                         style={{textTransform: 'none', fontSize: 'medium', margin: '15px', marginTop: '0px'}}
-                        onClick={handleClick}>
+                        onClick={handleClick}
+                    >
                         Проверить
                     </Button>
                 }
